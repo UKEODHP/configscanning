@@ -69,7 +69,7 @@ dependencies = [
 # Similar to `dependencies` above, these must be valid existing
 # projects.
 [project.optional-dependencies] # Optional
-dev = ["pip-tools", "pytest", "pytest-xdist", "pytest-mock", "black", "ruff"]
+dev = ["pip-tools", "pytest", "pytest-xdist", "pytest-mock", "black", "ruff", "moto", "tempfile"]
 
 # List URLs that are relevant to your project
 #

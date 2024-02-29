@@ -55,10 +55,18 @@ def delete_file(s3_file) -> None:
     s3_file.delete()
 
 
-def compare(repo_dir: str, s3_bucket: str, folder: str) -> None:
-    """Compares files and replaces/deletes contents of S3 bucket if different"""
+def main():
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    logging.getLogger("configscanning").setLevel(logging.DEBUG)
+
+    args = parser.parse_args()
+    k8sutils.init_k8s()
+
+    folder = args.clone_dir
+    s3_bucket = args.s3_bucket
+
     s3_contents = get_s3_contents(s3_bucket)
-    repo_contents = get_repo_contents(repo_dir)
+    repo_contents = get_repo_contents(folder)
 
     updated_files = []
 
@@ -77,7 +85,7 @@ def compare(repo_dir: str, s3_bucket: str, folder: str) -> None:
             s3_contents.remove(s3_file)
 
         elif not os.path.isdir(
-            f"{folder}/{path}"
+                f"{folder}/{path}"
         ):  # Folders are created automatically when nested files are uploaded to S3
             is_outdated = True
 
@@ -86,22 +94,6 @@ def compare(repo_dir: str, s3_bucket: str, folder: str) -> None:
 
     for file in s3_contents:
         delete_file(file)
-
-
-def main():
-    logging.basicConfig(level=logging.INFO, format="%(message)s")
-    logging.getLogger("configscanning").setLevel(logging.DEBUG)
-
-    args = parser.parse_args()
-    k8sutils.init_k8s()
-
-    cloned_directory = args.clone_dir
-    s3_bucket = args.s3_bucket
-
-    print(cloned_directory)
-    print(s3_bucket)
-
-    compare(cloned_directory, s3_bucket, cloned_directory)
 
 
 if __name__ == "__main__":

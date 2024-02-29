@@ -5,7 +5,16 @@
 #    pip-compile --extra=dev --output-file=requirements-dev.txt
 #
 black==23.7.0
-    # via aipipe-service-manager (pyproject.toml)
+    # via config-scanning (pyproject.toml)
+boto3==1.34.52
+    # via
+    #   config-scanning (pyproject.toml)
+    #   moto
+botocore==1.34.52
+    # via
+    #   boto3
+    #   moto
+    #   s3transfer
 build==0.10.0
     # via pip-tools
 cachetools==5.3.1
@@ -26,21 +35,35 @@ click==8.1.6
     #   black
     #   pip-tools
 cryptography==41.0.3
-    # via pyjwt
+    # via
+    #   moto
+    #   pyjwt
 deprecated==1.2.14
     # via pygithub
 execnet==2.0.2
     # via pytest-xdist
 filelock==3.12.2
-    # via aipipe-service-manager (pyproject.toml)
+    # via config-scanning (pyproject.toml)
 google-auth==2.22.0
     # via kubernetes
 idna==3.4
     # via requests
 iniconfig==2.0.0
     # via pytest
+jinja2==3.1.3
+    # via moto
+jmespath==1.0.1
+    # via
+    #   boto3
+    #   botocore
 kubernetes==27.2.0
-    # via aipipe-service-manager (pyproject.toml)
+    # via config-scanning (pyproject.toml)
+markupsafe==2.1.5
+    # via
+    #   jinja2
+    #   werkzeug
+moto==5.0.2
+    # via config-scanning (pyproject.toml)
 mypy-extensions==1.0.0
     # via black
 oauthlib==3.2.2
@@ -55,7 +78,7 @@ packaging==23.1
 pathspec==0.11.2
     # via black
 pip-tools==7.3.0
-    # via aipipe-service-manager (pyproject.toml)
+    # via config-scanning (pyproject.toml)
 platformdirs==3.10.0
     # via black
 pluggy==1.2.0
@@ -69,41 +92,53 @@ pyasn1-modules==0.3.0
 pycparser==2.21
     # via cffi
 pygit2==1.12.2
-    # via aipipe-service-manager (pyproject.toml)
+    # via config-scanning (pyproject.toml)
 pygithub==1.59.1
-    # via aipipe-service-manager (pyproject.toml)
+    # via config-scanning (pyproject.toml)
 pyjwt[crypto]==2.8.0
-    # via pygithub
+    # via
+    #   pygithub
+    #   pyjwt
 pynacl==1.5.0
     # via pygithub
 pyproject-hooks==1.0.0
     # via build
 pytest==7.4.0
     # via
-    #   aipipe-service-manager (pyproject.toml)
+    #   config-scanning (pyproject.toml)
     #   pytest-mock
     #   pytest-xdist
 pytest-mock==3.11.1
-    # via aipipe-service-manager (pyproject.toml)
+    # via config-scanning (pyproject.toml)
 pytest-xdist==3.3.1
-    # via aipipe-service-manager (pyproject.toml)
+    # via config-scanning (pyproject.toml)
 python-dateutil==2.8.2
-    # via kubernetes
+    # via
+    #   botocore
+    #   kubernetes
+    #   moto
 pyyaml==6.0.1
     # via
-    #   aipipe-service-manager (pyproject.toml)
+    #   config-scanning (pyproject.toml)
     #   kubernetes
+    #   responses
 requests==2.31.0
     # via
     #   kubernetes
+    #   moto
     #   pygithub
     #   requests-oauthlib
+    #   responses
 requests-oauthlib==1.3.1
     # via kubernetes
+responses==0.25.0
+    # via moto
 rsa==4.9
     # via google-auth
 ruff==0.0.284
-    # via aipipe-service-manager (pyproject.toml)
+    # via config-scanning (pyproject.toml)
+s3transfer==0.10.0
+    # via boto3
 six==1.16.0
     # via
     #   google-auth
@@ -111,15 +146,21 @@ six==1.16.0
     #   python-dateutil
 urllib3==1.26.16
     # via
+    #   botocore
     #   google-auth
     #   kubernetes
     #   requests
+    #   responses
 websocket-client==1.6.1
     # via kubernetes
+werkzeug==3.0.1
+    # via moto
 wheel==0.41.1
     # via pip-tools
 wrapt==1.15.0
     # via deprecated
+xmltodict==0.13.0
+    # via moto
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
