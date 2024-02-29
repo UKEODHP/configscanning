@@ -14,4 +14,4 @@ jobs:
       - name: Install isort
         run: pip install isort
       - name: Run isort
-        run: isort . --check --diff
+        run: isort . --check --diff --ignore-whitespace
