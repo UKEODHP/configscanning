@@ -1,12 +1,13 @@
 from pathlib import Path
 
-from configscanning.githubrepo import AI4DTERepo
-import configscanning.repoupdater
-import configscanning.scanners.filelister
+import pygit2
 
 # noinspection PyPackageRequirements
 import pytest
-import pygit2
+
+import configscanning.repoupdater
+import configscanning.scanners.filelister
+from configscanning.githubrepo import AI4DTERepo
 
 
 @pytest.mark.integrationtest

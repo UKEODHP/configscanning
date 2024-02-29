@@ -1,14 +1,15 @@
-from datetime import datetime
 import logging
+from datetime import datetime
 from unittest import mock
 from unittest.mock import Mock
-
-# noinspection PyPackageRequirements
 
 from pytest_mock import MockerFixture
 
 import configscanning.repolisttranscriber
 from configscanning.repolisttranscriber import SourceAndTarget, transcribe
+
+# noinspection PyPackageRequirements
+
 
 # This can be useful for experimentation with the real API in the JASMIN dev cluster.
 # Probably not such a good routine unit test, though.

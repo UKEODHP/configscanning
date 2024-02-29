@@ -8,15 +8,16 @@ import importlib
 import json
 import logging
 import os
-from pathlib import Path
 import shutil
 import sys
+from pathlib import Path
 
 import yaml
 from github.Repository import Repository
 
 try:
-    from yaml import CDumper as Dumper, CSafeLoader as SafeLoader
+    from yaml import CDumper as Dumper
+    from yaml import CSafeLoader as SafeLoader
 except ImportError:
     from yaml import Dumper, SafeLoader
 

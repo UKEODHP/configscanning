@@ -4,7 +4,6 @@ from unittest import mock
 # noinspection PyPackageRequirements
 import kubernetes
 import kubernetes.dynamic.exceptions
-
 import yaml
 
 try:
@@ -12,9 +11,9 @@ try:
 except ImportError:
     from yaml import SafeLoader
 
-from configscanning.scanners.modelcrd import Scanner
-
 from pytest_mock import MockerFixture
+
+from configscanning.scanners.modelcrd import Scanner
 
 TEST_MODEL_MLFLOW = """type: Model
 name: Test model

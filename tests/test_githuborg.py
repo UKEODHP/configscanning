@@ -1,7 +1,7 @@
-from configscanning.githuborg import AIPIPEGitHubOrganization
-
 # noinspection PyPackageRequirements
 import pytest
+
+from configscanning.githuborg import AIPIPEGitHubOrganization
 
 
 @pytest.mark.integrationtest
