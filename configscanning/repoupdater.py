@@ -3,6 +3,7 @@ This is the command line tool which the workspace controller executes in Kuberne
 to fetch and scan AIPIPE resource configuration files stored in git repositories attached to
 Workspaces.
 """
+
 import argparse
 import importlib
 import json
@@ -72,7 +73,9 @@ parser.add_argument(
     action="store_true",
 )
 parser.add_argument(
-    "--pull", help="Update (pull or clone) our copy of the repo from upstream", action="store_true"
+    "--pull",
+    help="Update (pull or clone) our copy of the repo from upstream",
+    action="store_true",
 )
 parser.add_argument(
     "--config-scan",
@@ -142,7 +145,11 @@ def config_scan(
             last_scan_tag = f"_AI4DTE_SCANNED_{branch}"
             last_scan_tag_ref = f"refs/tags/{last_scan_tag}"
             files_to_scan = clonedrepo.changed_files(
-                last_scan_tag if not full_scan and clonedrepo.has_ref(last_scan_tag_ref) else None,
+                (
+                    last_scan_tag
+                    if not full_scan and clonedrepo.has_ref(last_scan_tag_ref)
+                    else None
+                ),
                 only_matching=scan_filter,
             )
 

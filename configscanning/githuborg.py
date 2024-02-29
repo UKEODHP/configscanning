@@ -1,4 +1,5 @@
 """Tools for use with GitHub Organizations"""
+
 from typing import Iterable, Optional
 
 from github import Auth, GithubIntegration

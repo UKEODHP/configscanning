@@ -8,6 +8,7 @@ That is:
 * The Repo resources' status fields are updated with up-to-date information about the remote repo.
   In particular, with the last push timestamp.
 """
+
 import argparse
 import logging
 import sys
@@ -157,7 +158,11 @@ def transcribe(app_id, pkey, src_tgt: SourceAndTarget, workspace_name: str = Non
         # Remove repos gone from GitHub
         repos_removed = k8s_repos.keys() - gh_repos.keys()
         for repo_name in repos_removed:
-            logging.info("Removing repo %s from cluster namespace %s", repo_name, src_tgt.namespace)
+            logging.info(
+                "Removing repo %s from cluster namespace %s",
+                repo_name,
+                src_tgt.namespace,
+            )
             repoapi.delete(namespace=src_tgt.namespace, name=repo_name)
 
         # Add repos added to GitHub
