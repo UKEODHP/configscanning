@@ -1,8 +1,6 @@
-import json
 import os
 import sys
 import tempfile
-from io import StringIO
 from tempfile import TemporaryDirectory
 
 import boto3
@@ -22,33 +20,6 @@ from configscanning.comparefiles import (
 @pytest.fixture
 def parameters(mock_folder):
     return {"folder": f"{mock_folder}/", "bucket_name": "test_bucket"}
-
-
-# @pytest.fixture
-# @moto.mock_aws
-# def mock_s3(parameters):
-#     conn = boto3.resource("s3", region_name="us-east-1")
-#     # We need to create the bucket since this is all in Moto's 'virtual' AWS account
-#     conn.create_bucket(Bucket=parameters['bucket_name'])
-#     yield conn
-
-
-# @moto.mock_aws
-# @pytest.fixture
-# def s3_bucket(parameters):
-#     conn = boto3.resource("s3", region_name="us-east-1")
-#     # We need to create the bucket since this is all in Moto's 'virtual' AWS account
-#     conn.create_bucket(Bucket="mybucket")
-
-
-# @pytest.fixture
-# @moto.mock_aws
-# def s3_bucket(parameters):
-#     conn = boto3.client("s3")#, region_name="us-east-1")
-#     # We need to create the bucket since this is all in Moto's 'virtual' AWS account
-#     conn.create_bucket(Bucket="mybucket")
-#
-#     yield conn
 
 
 @pytest.fixture
@@ -137,8 +108,6 @@ def test_match_file__is_directory(parameters):
 
 def test_update_file(parameters):
     with moto.mock_aws(), tempfile.NamedTemporaryFile() as temp_file:
-        temp_directory = tempfile.gettempdir()
-
         test_file_path = temp_file.name
         test_file_name = test_file_path.split("/")[-1]
 
