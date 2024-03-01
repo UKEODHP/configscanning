@@ -12,6 +12,6 @@ jobs:
           options: "--line-length 100 --check --verbose"
       - uses: chartboost/ruff-action@v1
       - name: Install isort
-      run: pip install isort
+        run: pip install isort
       - name: Run isort
         run: isort . --check --diff --ignore-whitespace --profile black
