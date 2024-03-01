@@ -49,8 +49,6 @@ parser.add_argument(
     action="append",
     default=[
         "configscanning.scanners.modelcrd",
-        "configscanning.scanners.applicationcrd",
-        "configscanning.scanners.workflowcrd",
     ],
 )
 parser.add_argument(
