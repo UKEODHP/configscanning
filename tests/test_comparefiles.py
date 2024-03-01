@@ -286,3 +286,31 @@ def test_main__s3_excluded_dir(parameters):
 
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
         assert len(s3_files) == 1
+
+
+def test_main__s3_unexcluded_dir(parameters):
+    with moto.mock_aws(), tempfile.TemporaryDirectory() as temp_dir:
+        sys.argv = [None, temp_dir, parameters["bucket_name"], ""]
+
+        s3_only_file_name = "s3.txt"
+        path = f"{temp_dir}/{s3_only_file_name}"
+
+        s3 = boto3.client("s3", region_name="us-east-1")
+        s3.create_bucket(Bucket=parameters["bucket_name"])
+
+        with open(path, "w") as temp_file:
+            temp_file.write("file contents\n")
+            temp_file.flush()
+
+        s3.upload_file(path, parameters["bucket_name"], f"excluded/{s3_only_file_name}")
+        s3_resource = boto3.resource("s3")
+
+        s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
+        assert len(s3_files) == 1
+
+        os.remove(path)
+
+        main()
+
+        s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
+        assert len(s3_files) == 0
