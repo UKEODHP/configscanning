@@ -68,8 +68,6 @@ def main():
     s3_contents = get_s3_contents(s3_bucket)
     repo_contents = get_repo_contents(folder)
 
-    updated_files = []
-
     for path in repo_contents:
         is_outdated = False
         s3_file = match_file(path, s3_contents, folder)
@@ -79,7 +77,6 @@ def main():
             s3_file_contents = s3_file.get()["Body"].read().decode("utf-8")
 
             if list(difflib.unified_diff(repo_file_contents, s3_file_contents)):
-                updated_files.append(path)
                 is_outdated = True
 
             s3_contents.remove(s3_file)
