@@ -85,7 +85,7 @@ def main():
             s3_contents.remove(s3_file)
 
         elif not os.path.isdir(
-                f"{folder}/{path}"
+            f"{folder}/{path}"
         ):  # Folders are created automatically when nested files are uploaded to S3
             is_outdated = True
 
