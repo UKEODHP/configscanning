@@ -11,6 +11,7 @@ from configscanning import k8sutils
 parser = argparse.ArgumentParser()
 parser.add_argument("clone_dir", help="local directory of cloned repo", type=str)
 parser.add_argument("s3_bucket", help="S3 bucket", type=str)
+parser.add_argument("exclusions", help="names of other repos", type=str)
 
 
 def get_repo_contents(folder: str) -> list:
@@ -64,6 +65,7 @@ def main():
 
     folder = args.clone_dir
     s3_bucket = args.s3_bucket
+    exclusions = args.exclusions.split(",")
 
     s3_contents = get_s3_contents(s3_bucket)
     repo_contents = get_repo_contents(folder)
@@ -90,7 +92,13 @@ def main():
             update_file(path, folder, s3_bucket)
 
     for file in s3_contents:
-        delete_file(file)
+        excluded = False
+        for exclusion in exclusions:
+            if file.key.startswith(f"{exclusion}/"):
+                excluded = True
+                break
+        if not excluded:
+            delete_file(file)
 
 
 if __name__ == "__main__":
