@@ -1,6 +1,7 @@
 """
 This scanner finds model config files and creates/updates model.ai-pipeline.org CRs.
 """
+
 import logging
 
 import kubernetes
