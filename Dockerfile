@@ -13,11 +13,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 #    && apt-get update -y && apt-get install -y kubectl \
 #    && snap install kubectl --classic \
     && curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
-    && sudo apt-get update \
-    && sudo apt-get install -y apt-transport-https ca-certificates curl \
-    && sudo mkdir -p -m 755 /etc/apt/keyrings \
-    && curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg \
-    && sudo apt-get install -y kubectl
+    && sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl \
+
 
 WORKDIR /service-manager-config-scanner
 ADD LICENSE.txt requirements.txt ./
