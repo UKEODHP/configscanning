@@ -14,6 +14,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 #    && snap install kubectl --classic \
 #    && curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
 #    && sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    && apt-get install -y apt-transport-https \
+    && curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
+    && echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list \
+    && apt-get update \
+    && apt-get install -y kubectl
 
 
 WORKDIR /service-manager-config-scanner
