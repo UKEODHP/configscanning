@@ -12,8 +12,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list \
 #    && apt-get update -y && apt-get install -y kubectl \
 #    && snap install kubectl --classic \
-    && curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
-    && sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl \
+#    && curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+#    && sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl \
 
 
 WORKDIR /service-manager-config-scanner
