@@ -90,6 +90,7 @@ def main():
 
     print("XXXXXXXXXXXXXXXXXXXX")
     print(folder)
+    print(glob.glob("/tmp"))
     print(repo_contents)
 
     for path in repo_contents:
