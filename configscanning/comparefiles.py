@@ -88,7 +88,7 @@ def main():
     s3_contents = get_s3_contents(s3_bucket, s3)
     repo_contents = get_repo_contents(folder)
 
-    print('XXXXXXXXXXXXXXXXXXXX')
+    print("XXXXXXXXXXXXXXXXXXXX")
     print(repo_contents)
 
     for path in repo_contents:
