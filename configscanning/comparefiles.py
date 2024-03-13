@@ -89,6 +89,7 @@ def main():
     repo_contents = get_repo_contents(folder)
 
     print("XXXXXXXXXXXXXXXXXXXX")
+    print(folder)
     print(repo_contents)
 
     for path in repo_contents:
