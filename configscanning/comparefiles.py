@@ -85,14 +85,11 @@ def main():
     else:
         s3 = boto3.resource("s3")
 
-    print("AAAAAAAAAAAAAAAAA")
-    print(boto3.client("sts").get_caller_identity())
-    import sys
-
-    sys.exit()
-
     s3_contents = get_s3_contents(s3_bucket, s3)
     repo_contents = get_repo_contents(folder)
+
+    print('XXXXXXXXXXXXXXXXXXXX')
+    print(repo_contents)
 
     for path in repo_contents:
         is_outdated = False
