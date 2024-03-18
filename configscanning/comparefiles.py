@@ -12,7 +12,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument("clone_dir", help="local directory of cloned repo", type=str)
 parser.add_argument("s3_bucket", help="S3 bucket", type=str)
 parser.add_argument("s3_folder", help="S3 subdirectory", type=str)
-parser.add_argument("exclusions", help="names of other repos", type=str)
 
 
 def get_repo_contents(folder: str) -> list:
@@ -25,11 +24,17 @@ def get_repo_contents(folder: str) -> list:
     ]
 
 
-def get_s3_contents(s3_bucket_name: str, s3: boto3.resource) -> list:
+def get_s3_contents(s3_bucket_name: str, s3: boto3.resource, s3_folder: str) -> list:
     """Collects the contents of the S3 bucket"""
     bucket = s3.Bucket(s3_bucket_name)
 
-    return list(bucket.objects.all())
+    files_in_s3 = list(bucket.objects.filter(Prefix=s3_folder).all())
+    folder_contents = [f for f in files_in_s3 if f.key.startswith(f"{s3_folder}/")]
+
+    if s3_folder.count("/") == 0:  # i.e. top level only
+        folder_contents = [f for f in folder_contents if f.key.count("/") == 1]
+
+    return folder_contents
 
 
 def match_file(path: str, s3_contents: list, folder: str, s3_folder: str):
@@ -38,8 +43,6 @@ def match_file(path: str, s3_contents: list, folder: str, s3_folder: str):
     file_path = f"{subdir}{path}"
 
     if os.path.exists(f"{folder}/{path}") and not os.path.isdir(f"{folder}/{path}"):
-        # for f in s3_contents:
-        #     print(f.key, path, f.key.startswith(s3_folder))
         return next((f for f in s3_contents if f.key == file_path), None)
     else:
         return None
@@ -73,7 +76,6 @@ def main():
     folder = args.clone_dir
     s3_bucket = args.s3_bucket
     s3_folder = args.s3_folder
-    exclusions = args.exclusions.split(",")
 
     if os.getenv("AWS_ACCESS_KEY") and os.getenv("AWS_SECRET_ACCESS_KEY"):
         session = boto3.session.Session(
@@ -85,7 +87,7 @@ def main():
     else:
         s3 = boto3.resource("s3")
 
-    s3_contents = get_s3_contents(s3_bucket, s3)
+    s3_contents = get_s3_contents(s3_bucket, s3, s3_folder)
     repo_contents = get_repo_contents(folder)
 
     for path in repo_contents:
@@ -110,14 +112,7 @@ def main():
             update_file(path, folder, s3_bucket, s3, s3_folder)
 
     for file in s3_contents:
-        excluded = False
-        for exclusion in exclusions:
-            if file.key.startswith(f"{exclusion}/") or ("/" not in file.key and s3_folder):
-
-                excluded = True
-                break
-        if not excluded:
-            delete_file(file)
+        delete_file(file)
 
 
 if __name__ == "__main__":

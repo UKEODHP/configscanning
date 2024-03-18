@@ -44,7 +44,7 @@ def test_get_repo_contents(parameters, mock_folder):
 
 
 def test_get_s3_contents(parameters, mock_folder):
-    test_file_name = "test_file.txt"
+    test_file_name = "test/test_file.txt"
 
     with moto.mock_aws(), tempfile.NamedTemporaryFile() as temp_file:
         temp_file.write(b"file contents\n")
@@ -56,7 +56,7 @@ def test_get_s3_contents(parameters, mock_folder):
         s3.upload_file(temp_file.name, parameters["bucket_name"], test_file_name)
 
         s3_resource = boto3.resource("s3")
-        files = get_s3_contents(parameters["bucket_name"], s3_resource)
+        files = get_s3_contents(parameters["bucket_name"], s3_resource, "test")
 
         assert len(files) == 1
         assert files[0].bucket_name == parameters["bucket_name"]
@@ -154,10 +154,12 @@ def test_delete_file(parameters):
 
 def test_main__same_file(parameters):
     with moto.mock_aws(), tempfile.TemporaryDirectory() as temp_dir:
-        sys.argv = [None, temp_dir, parameters["bucket_name"], "", ""]
+        sys.argv = [None, temp_dir, parameters["bucket_name"], ""]
 
         same_file_name = "same.txt"
-        path = f"{temp_dir}/{same_file_name}"
+        folder_path = f"{temp_dir}/test"
+        os.makedirs(folder_path)
+        path = f"{folder_path}/{same_file_name}"
 
         s3 = boto3.client("s3", region_name="us-east-1")
         s3.create_bucket(Bucket=parameters["bucket_name"])
@@ -166,7 +168,7 @@ def test_main__same_file(parameters):
             temp_file.write("file contents\n")
             temp_file.flush()
 
-        s3.upload_file(path, parameters["bucket_name"], same_file_name)
+        s3.upload_file(path, parameters["bucket_name"], f"/test/{same_file_name}")
         s3_resource = boto3.resource("s3")
 
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
@@ -181,10 +183,12 @@ def test_main__same_file(parameters):
 
 def test_main__different_file(parameters):
     with moto.mock_aws(), tempfile.TemporaryDirectory() as temp_dir:
-        sys.argv = [None, temp_dir, parameters["bucket_name"], "", ""]
+        sys.argv = [None, temp_dir, parameters["bucket_name"], ""]
 
         differences_file_name = "differences.txt"
-        path = f"{temp_dir}/{differences_file_name}"
+        folder_path = f"{temp_dir}/test"
+        os.makedirs(folder_path)
+        path = f"{folder_path}/{differences_file_name}"
 
         s3 = boto3.client("s3", region_name="us-east-1")
         s3.create_bucket(Bucket=parameters["bucket_name"])
@@ -193,7 +197,7 @@ def test_main__different_file(parameters):
             temp_file.write("file contents\n")
             temp_file.flush()
 
-        s3.upload_file(path, parameters["bucket_name"], differences_file_name)
+        s3.upload_file(path, parameters["bucket_name"], f"/test/{differences_file_name}")
         s3_resource = boto3.resource("s3")
 
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
@@ -215,10 +219,12 @@ def test_main__different_file(parameters):
 
 def test_main__s3_only_file(parameters):
     with moto.mock_aws(), tempfile.TemporaryDirectory() as temp_dir:
-        sys.argv = [None, temp_dir, parameters["bucket_name"], "", ""]
+        sys.argv = [None, temp_dir, parameters["bucket_name"], ""]
 
         s3_only_file_name = "s3.txt"
-        path = f"{temp_dir}/{s3_only_file_name}"
+        folder_path = f"{temp_dir}/test"
+        os.makedirs(folder_path)
+        path = f"{folder_path}/{s3_only_file_name}"
 
         s3 = boto3.client("s3", region_name="us-east-1")
         s3.create_bucket(Bucket=parameters["bucket_name"])
@@ -227,7 +233,7 @@ def test_main__s3_only_file(parameters):
             temp_file.write("file contents\n")
             temp_file.flush()
 
-        s3.upload_file(path, parameters["bucket_name"], s3_only_file_name)
+        s3.upload_file(path, parameters["bucket_name"], f"test/{s3_only_file_name}")
         s3_resource = boto3.resource("s3")
 
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
@@ -238,15 +244,18 @@ def test_main__s3_only_file(parameters):
         main()
 
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
+
         assert len(s3_files) == 0
 
 
 def test_main__local_only_file(parameters):
     with moto.mock_aws(), tempfile.TemporaryDirectory() as temp_dir:
-        sys.argv = [None, temp_dir, parameters["bucket_name"], "", ""]
+        sys.argv = [None, temp_dir, parameters["bucket_name"], ""]
 
         local_only_file_name = "local.txt"
-        path = f"{temp_dir}/{local_only_file_name}"
+        folder_path = f"{temp_dir}/test"
+        os.makedirs(folder_path)
+        path = f"{folder_path}/{local_only_file_name}"
 
         s3 = boto3.client("s3", region_name="us-east-1")
         s3.create_bucket(Bucket=parameters["bucket_name"])
@@ -267,10 +276,12 @@ def test_main__local_only_file(parameters):
 
 def test_main__s3_excluded_dir(parameters):
     with moto.mock_aws(), tempfile.TemporaryDirectory() as temp_dir:
-        sys.argv = [None, temp_dir, parameters["bucket_name"], "", "excluded"]
+        sys.argv = [None, temp_dir, parameters["bucket_name"], "another_folder"]
 
         s3_only_file_name = "s3.txt"
-        path = f"{temp_dir}/{s3_only_file_name}"
+        folder_path = f"{temp_dir}/test"
+        os.makedirs(folder_path)
+        path = f"{folder_path}/{s3_only_file_name}"
 
         s3 = boto3.client("s3", region_name="us-east-1")
         s3.create_bucket(Bucket=parameters["bucket_name"])
@@ -279,7 +290,7 @@ def test_main__s3_excluded_dir(parameters):
             temp_file.write("file contents\n")
             temp_file.flush()
 
-        s3.upload_file(path, parameters["bucket_name"], f"excluded/{s3_only_file_name}")
+        s3.upload_file(path, parameters["bucket_name"], f"test/{s3_only_file_name}")
         s3_resource = boto3.resource("s3")
 
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
@@ -295,10 +306,12 @@ def test_main__s3_excluded_dir(parameters):
 
 def test_main__s3_excluded_dir_top_level(parameters):
     with moto.mock_aws(), tempfile.TemporaryDirectory() as temp_dir:
-        sys.argv = [None, temp_dir, parameters["bucket_name"], "subdir", "folder"]
+        sys.argv = [None, temp_dir, parameters["bucket_name"], "subdir"]
 
         top_level_file_name = "top_level_file.txt"
-        path = f"{temp_dir}/{top_level_file_name}"
+        folder_path = f"{temp_dir}/test"
+        os.makedirs(folder_path)
+        path = f"{folder_path}/{top_level_file_name}"
 
         s3 = boto3.client("s3", region_name="us-east-1")
         s3.create_bucket(Bucket=parameters["bucket_name"])
@@ -307,7 +320,7 @@ def test_main__s3_excluded_dir_top_level(parameters):
             temp_file.write("file contents\n")
             temp_file.flush()
 
-        s3.upload_file(path, parameters["bucket_name"], f"{top_level_file_name}")
+        s3.upload_file(path, parameters["bucket_name"], f"/test/{top_level_file_name}")
         s3_resource = boto3.resource("s3")
 
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
@@ -319,31 +332,3 @@ def test_main__s3_excluded_dir_top_level(parameters):
 
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
         assert len(s3_files) == 1
-
-
-def test_main__s3_unexcluded_dir(parameters):
-    with moto.mock_aws(), tempfile.TemporaryDirectory() as temp_dir:
-        sys.argv = [None, temp_dir, parameters["bucket_name"], "", ""]
-
-        s3_only_file_name = "s3.txt"
-        path = f"{temp_dir}/{s3_only_file_name}"
-
-        s3 = boto3.client("s3", region_name="us-east-1")
-        s3.create_bucket(Bucket=parameters["bucket_name"])
-
-        with open(path, "w") as temp_file:
-            temp_file.write("file contents\n")
-            temp_file.flush()
-
-        s3.upload_file(path, parameters["bucket_name"], f"excluded/{s3_only_file_name}")
-        s3_resource = boto3.resource("s3")
-
-        s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
-        assert len(s3_files) == 1
-
-        os.remove(path)
-
-        main()
-
-        s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
-        assert len(s3_files) == 0
