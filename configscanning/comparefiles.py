@@ -8,10 +8,17 @@ import boto3
 
 from configscanning import k8sutils
 
-parser = argparse.ArgumentParser()
-parser.add_argument("clone_dir", help="local directory of cloned repo", type=str)
-parser.add_argument("s3_bucket", help="S3 bucket", type=str)
-parser.add_argument("s3_folder", help="S3 subdirectory", type=str)
+
+logger = logging.getLogger(__name__)
+
+
+def get_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--clone_dir", help="local directory of cloned repo", type=str)
+    parser.add_argument("--s3_bucket", help="S3 bucket", type=str)
+    parser.add_argument("--s3_folder", help="S3 subdirectory", type=str)
+    parser.add_argument("--branch", help="branch to fetch", type=str)
+    return parser
 
 
 def get_repo_contents(folder: str) -> list:
@@ -26,6 +33,7 @@ def get_repo_contents(folder: str) -> list:
 
 def get_s3_contents(s3_bucket_name: str, s3: boto3.resource, s3_folder: str) -> list:
     """Collects the contents of the S3 bucket"""
+    logging.info(f"Collecting contents of {s3_bucket_name}")
     bucket = s3.Bucket(s3_bucket_name)
 
     files_in_s3 = list(bucket.objects.filter(Prefix=s3_folder).all())
@@ -66,16 +74,23 @@ def delete_file(s3_file) -> None:
     s3_file.delete()
 
 
-def main():
+def main(parser=None):
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     logging.getLogger("configscanning").setLevel(logging.DEBUG)
 
-    args = parser.parse_args()
+    if parser is None:
+        parser = get_parser()
+
+    args, _ = parser.parse_known_args()
     k8sutils.init_k8s()
 
-    folder = args.clone_dir
+    folder = os.path.join(args.clone_dir, '')
     s3_bucket = args.s3_bucket
     s3_folder = args.s3_folder
+
+    added_files = []
+    updated_files = []
+    deleted_files = []
 
     if os.getenv("AWS_ACCESS_KEY") and os.getenv("AWS_SECRET_ACCESS_KEY"):
         session = boto3.session.Session(
@@ -100,6 +115,7 @@ def main():
 
             if list(difflib.unified_diff(repo_file_contents, s3_file_contents)):
                 is_outdated = True
+                updated_files.append(s3_file)
 
             s3_contents.remove(s3_file)
 
@@ -107,12 +123,16 @@ def main():
             f"{folder}/{path}"
         ):  # Folders are created automatically when nested files are uploaded to S3
             is_outdated = True
+            added_files.append(s3_file)
 
         if is_outdated:
             update_file(path, folder, s3_bucket, s3, s3_folder)
 
     for file in s3_contents:
         delete_file(file)
+        deleted_files.append(file)
+
+    return {'added_files': added_files, 'updated_files': updated_files, 'deleted_files': deleted_files}
 
 
 if __name__ == "__main__":
