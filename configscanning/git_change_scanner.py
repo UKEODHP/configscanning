@@ -1,8 +1,11 @@
 import argparse
-import requests
-import tempfile
+import json
+import os
 
-from configscanning import repoupdater, comparefiles
+import pulsar
+import requests
+
+from configscanning import comparefiles, repoupdater
 
 
 def combine_arguments(args1, args2, additional_arguments=None):
@@ -32,23 +35,34 @@ def main():
 
     repoupdater_arguments = vars(args_repoupdater)
 
-    folder_arguments = {'clone_dir': repoupdater_arguments['dest']}
+    folder_arguments = {"clone_dir": repoupdater_arguments["dest"]}
 
-    if vars(args_comparefiles)['s3_folder'] is None:
-        repo_url = requests.urllib3.util.parse_url(repoupdater_arguments['repourl'])
-        branch = repoupdater_arguments['branch']
+    if vars(args_comparefiles)["s3_folder"] is None:
+        repo_url = requests.urllib3.util.parse_url(repoupdater_arguments["repourl"])
+        branch = repoupdater_arguments["branch"]
 
-        folder_arguments['s3_folder'] = f"{repo_url.path}/{branch}".lstrip('/')
+        folder_arguments["s3_folder"] = f"{repo_url.path}/{branch}".lstrip("/")
 
-    parser = combine_arguments(args_repoupdater, args_comparefiles, additional_arguments=folder_arguments)
+    parser = combine_arguments(
+        args_repoupdater, args_comparefiles, additional_arguments=folder_arguments
+    )
+
+    client = pulsar.Client(os.environ.get("PULSAR_URL"))
+    producer = client.create_producer(topic="harvester", producer_name="git_change_scanner")
+
+    try:
+        repoupdater.main(parser)
+        file_summary = comparefiles.main(parser)
+
+        msg = json.dumps(file_summary)
+        producer.send(msg.encode("utf-8"))
+    except Exception:
+        msg = "Harvester error"
+        producer.send(msg.encode("utf-8"))
+    finally:
+        producer.close()
+        client.close()
 
 
-
-    repoupdater.main(parser)
-    comparefiles.main(parser)
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
-
