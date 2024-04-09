@@ -1,3 +1,4 @@
+import argparse
 import os
 import sys
 import tempfile
@@ -20,11 +21,24 @@ from configscanning.comparefiles import (
 @pytest.fixture
 def parameters(mock_folder):
     return {
+        "name": "my_file.py",
         "folder": f"{mock_folder}/",
         "bucket_name": "test_bucket",
-        "s3_folder": "",
+        "s3_folder": "test",
         "exclusions": "",
     }
+
+
+@pytest.fixture
+def test_parser(parameters):
+    sys.argv = [parameters['name']]
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--clone_dir", default=parameters['folder'], type=str)
+    parser.add_argument("--s3_bucket", default=parameters['bucket_name'], type=str)
+    parser.add_argument("--s3_folder", default=parameters['s3_folder'], type=str)
+    parser.add_argument("--branch", default="main", type=str)
+    parser.add_argument("--subdirs_to_ignore", type=str, default="")
+    return parser
 
 
 @pytest.fixture
@@ -152,7 +166,7 @@ def test_delete_file(parameters):
         assert len(s3_files) == 0
 
 
-def test_main__same_file(parameters):
+def test_main__same_file(parameters, test_parser):
     with moto.mock_aws(), tempfile.TemporaryDirectory() as temp_dir:
         sys.argv = [None, temp_dir, parameters["bucket_name"], ""]
 
@@ -174,19 +188,19 @@ def test_main__same_file(parameters):
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
         assert len(s3_files) == 1
 
-        main()
+        main(parser=test_parser)
 
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
 
         assert len(s3_files) == 1
 
 
-def test_main__different_file(parameters):
-    with moto.mock_aws(), tempfile.TemporaryDirectory() as temp_dir:
-        sys.argv = [None, temp_dir, parameters["bucket_name"], ""]
+def test_main__different_file(parameters, test_parser):
+    with moto.mock_aws():
+        # sys.argv = [parameters['name'], parameters['folder'], parameters["bucket_name"], ""]
 
         differences_file_name = "differences.txt"
-        folder_path = f"{temp_dir}/test"
+        folder_path = f"{parameters['folder']}/test"
         os.makedirs(folder_path)
         path = f"{folder_path}/{differences_file_name}"
 
@@ -197,7 +211,7 @@ def test_main__different_file(parameters):
             temp_file.write("file contents\n")
             temp_file.flush()
 
-        s3.upload_file(path, parameters["bucket_name"], f"/test/{differences_file_name}")
+        s3.upload_file(path, parameters["bucket_name"], f"test/{differences_file_name}")
         s3_resource = boto3.resource("s3")
 
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
@@ -207,7 +221,7 @@ def test_main__different_file(parameters):
             temp_file.write("new contents\n")
             temp_file.flush()
 
-        main()
+        main(parser=test_parser)
 
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
         assert len(s3_files) == 1
@@ -217,12 +231,12 @@ def test_main__different_file(parameters):
         assert file_content == "new contents\n"
 
 
-def test_main__s3_only_file(parameters):
-    with moto.mock_aws(), tempfile.TemporaryDirectory() as temp_dir:
-        sys.argv = [None, temp_dir, parameters["bucket_name"], ""]
+def test_main__s3_only_file(parameters, test_parser):
+    with moto.mock_aws():
+        # sys.argv = [parameters['name'], parameters['folder'], parameters["bucket_name"], ""]
 
         s3_only_file_name = "s3.txt"
-        folder_path = f"{temp_dir}/test"
+        folder_path = f"{parameters['folder']}/test"
         os.makedirs(folder_path)
         path = f"{folder_path}/{s3_only_file_name}"
 
@@ -241,19 +255,18 @@ def test_main__s3_only_file(parameters):
 
         os.remove(path)
 
-        main()
+        main(parser=test_parser)
 
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
-
         assert len(s3_files) == 0
 
 
-def test_main__local_only_file(parameters):
-    with moto.mock_aws(), tempfile.TemporaryDirectory() as temp_dir:
-        sys.argv = [None, temp_dir, parameters["bucket_name"], ""]
+def test_main__local_only_file(parameters, test_parser):
+    with moto.mock_aws():
+        # sys.argv = [parameters['name'], parameters['folder'], parameters["bucket_name"], ""]
 
         local_only_file_name = "local.txt"
-        folder_path = f"{temp_dir}/test"
+        folder_path = f"{parameters['folder']}/test"
         os.makedirs(folder_path)
         path = f"{folder_path}/{local_only_file_name}"
 
@@ -268,18 +281,18 @@ def test_main__local_only_file(parameters):
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
         assert len(s3_files) == 0
 
-        main()
+        main(parser=test_parser)
 
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
         assert len(s3_files) == 1
 
 
-def test_main__s3_excluded_dir(parameters):
-    with moto.mock_aws(), tempfile.TemporaryDirectory() as temp_dir:
-        sys.argv = [None, temp_dir, parameters["bucket_name"], "another_folder"]
+def test_main__s3_excluded_dir(parameters, test_parser):
+    with moto.mock_aws():
+        sys.argv = [None, "--s3_folder", 'different_folder']
 
         s3_only_file_name = "s3.txt"
-        folder_path = f"{temp_dir}/test"
+        folder_path = f"{parameters['folder']}/test"
         os.makedirs(folder_path)
         path = f"{folder_path}/{s3_only_file_name}"
 
@@ -298,18 +311,18 @@ def test_main__s3_excluded_dir(parameters):
 
         os.remove(path)
 
-        main()
+        main(parser=test_parser)
 
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
         assert len(s3_files) == 1
 
 
-def test_main__s3_excluded_dir_top_level(parameters):
-    with moto.mock_aws(), tempfile.TemporaryDirectory() as temp_dir:
-        sys.argv = [None, temp_dir, parameters["bucket_name"], "subdir"]
+def test_main__s3_excluded_dir_top_level(parameters, test_parser):
+    with moto.mock_aws():
+        # sys.argv = [parameters['name'], parameters['folder'], parameters["bucket_name"], "subdir"]
 
         top_level_file_name = "top_level_file.txt"
-        folder_path = f"{temp_dir}/test"
+        folder_path = f"{parameters['folder']}/test"
         os.makedirs(folder_path)
         path = f"{folder_path}/{top_level_file_name}"
 
@@ -328,7 +341,7 @@ def test_main__s3_excluded_dir_top_level(parameters):
 
         os.remove(path)
 
-        main()
+        main(parser=test_parser)
 
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
         assert len(s3_files) == 1
