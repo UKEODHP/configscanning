@@ -3,6 +3,7 @@ import difflib
 import glob
 import logging
 import os
+from typing import Optional
 
 import boto3
 
@@ -18,6 +19,7 @@ def get_parser():
     parser.add_argument("--s3_bucket", help="S3 bucket", type=str)
     parser.add_argument("--s3_folder", help="S3 subdirectory", type=str)
     parser.add_argument("--branch", help="branch to fetch", type=str)
+    parser.add_argument("--subdirs_to_ignore", help="subdirectories to ignore", type=str, default="")
     return parser
 
 
@@ -57,14 +59,13 @@ def match_file(path: str, s3_contents: list, folder: str, s3_folder: str):
 
 
 def update_file(
-    path: str, folder: str, s3_bucket_name: str, s3: boto3.resource, s3_folder: str
+    path: str, folder: str, s3_bucket_name: str, s3: boto3.resource, s3_folder: str, subdirs_to_ignore: Optional[str]=""
 ) -> None:
     """Updates file in S3 from local directory"""
     logging.info(f"Updating {path} into {s3_folder if s3_folder else 'top level'}")
 
-    subdir = f"{s3_folder}/" if s3_folder else ""
-
-    s3.Bucket(s3_bucket_name).upload_file(f"{folder}/{path}", f"{subdir}{path}")
+    subdir = f"{s3_folder}" if s3_folder else ""
+    s3.Bucket(s3_bucket_name).upload_file(f"{folder}{subdirs_to_ignore}{path}", f"{subdir}{path}")
 
 
 def delete_file(s3_file) -> None:
@@ -84,9 +85,10 @@ def main(parser=None):
     args, _ = parser.parse_known_args()
     k8sutils.init_k8s()
 
-    folder = os.path.join(args.clone_dir, '')
+    folder = os.path.join(args.clone_dir, "")
     s3_bucket = args.s3_bucket
     s3_folder = args.s3_folder
+    subdirs_to_ignore = args.subdirs_to_ignore
 
     added_files = []
     updated_files = []
@@ -103,7 +105,7 @@ def main(parser=None):
         s3 = boto3.resource("s3")
 
     s3_contents = get_s3_contents(s3_bucket, s3, s3_folder)
-    repo_contents = get_repo_contents(folder)
+    repo_contents = get_repo_contents(os.path.join(folder, subdirs_to_ignore))
 
     for path in repo_contents:
         is_outdated = False
@@ -120,13 +122,13 @@ def main(parser=None):
             s3_contents.remove(s3_file)
 
         elif not os.path.isdir(
-            f"{folder}/{path}"
+            f"{folder}{subdirs_to_ignore}{path}"
         ):  # Folders are created automatically when nested files are uploaded to S3
             is_outdated = True
             added_files.append(s3_file)
 
         if is_outdated:
-            update_file(path, folder, s3_bucket, s3, s3_folder)
+            update_file(path, folder, s3_bucket, s3, s3_folder, subdirs_to_ignore=subdirs_to_ignore)
 
     for file in s3_contents:
         delete_file(file)
