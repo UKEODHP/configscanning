@@ -9,7 +9,6 @@ import boto3
 
 from configscanning import k8sutils
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -19,7 +18,9 @@ def get_parser():
     parser.add_argument("--s3_bucket", help="S3 bucket", type=str)
     parser.add_argument("--s3_folder", help="S3 subdirectory", type=str)
     parser.add_argument("--branch", help="branch to fetch", type=str)
-    parser.add_argument("--subdirs_to_ignore", help="subdirectories to ignore", type=str, default="")
+    parser.add_argument(
+        "--subdirs_to_ignore", help="subdirectories to ignore", type=str, default=""
+    )
     return parser
 
 
@@ -59,7 +60,12 @@ def match_file(path: str, s3_contents: list, folder: str, s3_folder: str):
 
 
 def update_file(
-    path: str, folder: str, s3_bucket_name: str, s3: boto3.resource, s3_folder: str, subdirs_to_ignore: Optional[str]=""
+    path: str,
+    folder: str,
+    s3_bucket_name: str,
+    s3: boto3.resource,
+    s3_folder: str,
+    subdirs_to_ignore: Optional[str] = "",
 ) -> None:
     """Updates file in S3 from local directory"""
     logging.info(f"Updating {path} into {s3_folder if s3_folder else 'top level'}")
@@ -134,7 +140,11 @@ def main(parser=None):
         delete_file(file)
         deleted_files.append(file)
 
-    return {'added_files': added_files, 'updated_files': updated_files, 'deleted_files': deleted_files}
+    return {
+        "added_files": added_files,
+        "updated_files": updated_files,
+        "deleted_files": deleted_files,
+    }
 
 
 if __name__ == "__main__":

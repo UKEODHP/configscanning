@@ -31,11 +31,11 @@ def parameters(mock_folder):
 
 @pytest.fixture
 def test_parser(parameters):
-    sys.argv = [parameters['name']]
+    sys.argv = [parameters["name"]]
     parser = argparse.ArgumentParser()
-    parser.add_argument("--clone_dir", default=parameters['folder'], type=str)
-    parser.add_argument("--s3_bucket", default=parameters['bucket_name'], type=str)
-    parser.add_argument("--s3_folder", default=parameters['s3_folder'], type=str)
+    parser.add_argument("--clone_dir", default=parameters["folder"], type=str)
+    parser.add_argument("--s3_bucket", default=parameters["bucket_name"], type=str)
+    parser.add_argument("--s3_folder", default=parameters["s3_folder"], type=str)
     parser.add_argument("--branch", default="main", type=str)
     parser.add_argument("--subdirs_to_ignore", type=str, default="")
     return parser
@@ -289,7 +289,7 @@ def test_main__local_only_file(parameters, test_parser):
 
 def test_main__s3_excluded_dir(parameters, test_parser):
     with moto.mock_aws():
-        sys.argv = [None, "--s3_folder", 'different_folder']
+        sys.argv = [None, "--s3_folder", "different_folder"]
 
         s3_only_file_name = "s3.txt"
         folder_path = f"{parameters['folder']}/test"

@@ -29,7 +29,9 @@ from configscanning.githubrepo import AI4DTERepo
 def get_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("repourl", help="repository URL", type=str)
-    parser.add_argument("dest", help="checkout location (parent dir of clone)", type=str, default='.')
+    parser.add_argument(
+        "dest", help="checkout location (parent dir of clone)", type=str, default="."
+    )
     parser.add_argument(
         "--app-id-from",
         help="Location of file containing GitHub app ID (note: not 'client id')",
@@ -256,8 +258,6 @@ def main(parser=None):
     # "/tmp/element84-data/github.com/UKEODHP/element84-data/",
     # "catalogue-data",
     # "catalogue-data/element84-data",
-
-
 
 
 if __name__ == "__main__":
