@@ -58,6 +58,7 @@ dependencies = [
   "filelock",
   "pyyaml",
   "boto3",
+  "pulsar"
 ]
 
 # List additional groups of dependencies here (e.g. development
