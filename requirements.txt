@@ -15,6 +15,7 @@ cachetools==5.3.1
 certifi==2023.7.22
     # via
     #   kubernetes
+    #   pulsar-client
     #   requests
 cffi==1.15.1
     # via
@@ -39,13 +40,11 @@ jmespath==1.0.1
     #   botocore
 kubernetes==27.2.0
     # via config-scanning (pyproject.toml)
-multidict==6.0.5
-    # via pulsar
 oauthlib==3.2.2
     # via
     #   kubernetes
     #   requests-oauthlib
-pulsar==2.0.2
+pulsar-client==3.4.0
     # via config-scanning (pyproject.toml)
 pyasn1==0.5.0
     # via
