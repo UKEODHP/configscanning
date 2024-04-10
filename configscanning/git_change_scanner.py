@@ -52,11 +52,11 @@ def main():
     producer = client.create_producer(topic="harvester", producer_name="git_change_scanner")
 
     try:
-        logging.debug("Checking for updates in GitHub repository")
+        logging.info("Checking for updates in GitHub repository")
         repoupdater.main(parser)
-        logging.debug("Pushing changes to S3 bucket")
+        logging.info("Pushing changes to S3 bucket")
         file_summary = comparefiles.main(parser)
-        logging.debug("Bucket synchronised")
+        logging.info("Bucket synchronised")
 
         msg = json.dumps(file_summary)
         producer.send(msg.encode("utf-8"))
