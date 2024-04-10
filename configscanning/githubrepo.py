@@ -57,8 +57,8 @@ class AI4DTERepo:
                              https://github-host-name/orgname/reponame.git
               branches_to_fetch (set[str]): list of branch names to fetch - these MUST exist
         """
-        if branches_to_fetch is None:
-            branches_to_fetch = {"main"}
+        if branches_to_fetch == {'main'}:
+            branches_to_fetch = {None}
 
         self.repourl = repourl
         self.repourlobj = urlparse(repourl)
