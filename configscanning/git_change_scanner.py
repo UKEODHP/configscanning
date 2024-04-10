@@ -1,5 +1,6 @@
 import argparse
 import json
+import logging
 import os
 
 import pulsar
@@ -51,8 +52,11 @@ def main():
     producer = client.create_producer(topic="harvester", producer_name="git_change_scanner")
 
     try:
+        logging.debug("Checking for updates in GitHub repository")
         repoupdater.main(parser)
+        logging.debug("Pushing changes to S3 bucket")
         file_summary = comparefiles.main(parser)
+        logging.debug("Bucket synchronised")
 
         msg = json.dumps(file_summary)
         producer.send(msg.encode("utf-8"))
@@ -62,6 +66,7 @@ def main():
     finally:
         producer.close()
         client.close()
+        logging.debug("Complete")
 
 
 if __name__ == "__main__":
