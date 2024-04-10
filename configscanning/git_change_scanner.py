@@ -28,6 +28,9 @@ def combine_arguments(args1, args2, additional_arguments=None):
 
 
 def main():
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
+    logging.getLogger("configscanning").setLevel(logging.DEBUG)
+
     parser_repoupdater = repoupdater.get_parser()
     parser_comparefiles = comparefiles.get_parser()
 
