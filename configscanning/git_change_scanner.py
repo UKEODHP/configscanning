@@ -1,9 +1,9 @@
 import argparse
-import json
+# import json
 import logging
-import os
+# import os
 
-import pulsar
+# import pulsar
 import requests
 
 from configscanning import comparefiles, repoupdater
