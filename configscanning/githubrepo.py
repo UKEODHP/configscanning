@@ -117,6 +117,11 @@ class AI4DTERepo:
         else:
             # First we must integrate as the app, which gives us limited access.
             auth = Auth.AppAuth(app_id, app_private_key)
+            print(str(app_id)[-3:])
+            print(app_private_key[-40:])
+            logging.info(str(app_id)[-3:])
+            logging.info(app_private_key[-40:])
+
             ghi = GithubIntegration(auth=auth)
 
             # We can use this to find the app installation (for the organization which owns the
