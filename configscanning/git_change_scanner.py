@@ -3,12 +3,12 @@ import argparse
 # import json
 import logging
 
-# import os
-
 # import pulsar
 import requests
 
 from configscanning import comparefiles, repoupdater
+
+# import os
 
 
 def combine_arguments(args1, args2, additional_arguments=None):
