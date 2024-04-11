@@ -58,7 +58,8 @@ def main():
     logging.info("Checking for updates in GitHub repository")
     repoupdater.main(parser)
     logging.info("Pushing changes to S3 bucket")
-    file_summary = comparefiles.main(parser)
+    comparefiles.main(parser)
+    # file_summary = comparefiles.main(parser)
     logging.info("Bucket synchronised")
 
     #     msg = json.dumps(file_summary)
