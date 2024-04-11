@@ -51,25 +51,25 @@ def main():
         args_repoupdater, args_comparefiles, additional_arguments=folder_arguments
     )
 
-    client = pulsar.Client(os.environ.get("PULSAR_URL"))
-    producer = client.create_producer(topic="harvester", producer_name="git_change_scanner")
+    # client = pulsar.Client(os.environ.get("PULSAR_URL"))
+    # producer = client.create_producer(topic="harvester", producer_name="git_change_scanner")
+    #
+    # try:
+    logging.info("Checking for updates in GitHub repository")
+    repoupdater.main(parser)
+    logging.info("Pushing changes to S3 bucket")
+    file_summary = comparefiles.main(parser)
+    logging.info("Bucket synchronised")
 
-    try:
-        logging.info("Checking for updates in GitHub repository")
-        repoupdater.main(parser)
-        logging.info("Pushing changes to S3 bucket")
-        file_summary = comparefiles.main(parser)
-        logging.info("Bucket synchronised")
-
-        msg = json.dumps(file_summary)
-        producer.send(msg.encode("utf-8"))
-    except Exception:
-        msg = "Harvester error"
-        producer.send(msg.encode("utf-8"))
-    finally:
-        producer.close()
-        client.close()
-        logging.debug("Complete")
+    #     msg = json.dumps(file_summary)
+    #     producer.send(msg.encode("utf-8"))
+    # except Exception:
+    #     msg = "Harvester error"
+    #     producer.send(msg.encode("utf-8"))
+    # finally:
+    #     producer.close()
+    #     client.close()
+    #     logging.debug("Complete")
 
 
 if __name__ == "__main__":
