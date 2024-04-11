@@ -30,6 +30,10 @@ def combine_arguments(args1, args2, additional_arguments=None):
 
 
 def main():
+    import time
+
+    time.sleep(10 * 60)
+
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     logging.getLogger("configscanning").setLevel(logging.DEBUG)
 
@@ -74,9 +78,6 @@ def main():
     #     client.close()
     #     logging.debug("Complete")
 
-    import time
-
-    time.sleep(10 * 60)
 
 
 if __name__ == "__main__":
