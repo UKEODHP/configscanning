@@ -235,9 +235,9 @@ class AI4DTERepo:
             # what's in GitHub
             logger.info(f"Fetching for repo {self.repourl} clone in {self.location}")
 
-            config = self.repo.config
-            config.set_multivar("safe.directory", None, "*")
-            config.snapshot()
+            # config = self.repo.config
+            # config.set_multivar("safe.directory", None, "*")
+            # config.snapshot()
 
             print("ZZZZZZZZZZZZZZZZZz")
             print(self.repo)
