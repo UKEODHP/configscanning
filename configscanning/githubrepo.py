@@ -192,7 +192,7 @@ class AI4DTERepo:
         self.branches_to_fetch = self.branches_to_fetch & available_branches
         refspecs = self._refspecs_to_pull()
 
-        print('777777777777777')
+        print("777777777777777")
         print(self.get_github_repo())
         print(available_branches)
         print(self.branches_to_fetch)
