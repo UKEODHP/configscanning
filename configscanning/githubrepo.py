@@ -189,6 +189,8 @@ class AI4DTERepo:
         # any non-existent ones.
         self.get_github_repo()
         available_branches = set(map(lambda b: b.name, self._gh_repo.get_branches()))
+        print("66666666666666666")
+        print(self.branches_to_fetch)
         self.branches_to_fetch = self.branches_to_fetch & available_branches
         refspecs = self._refspecs_to_pull()
 
