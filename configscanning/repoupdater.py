@@ -112,7 +112,7 @@ def pull(app_id, pkey, clonedrepo):
             fobj.write(str(pushed_time))
 
         # Update / clone repo
-        print('zazazazazazazazazaazazaz')
+        print("zazazazazazazazazaazazaz")
         clonedrepo.update()
 
         # Return updated clone position
@@ -195,7 +195,7 @@ def main(parser=None):
         parser = get_parser()
     args, _ = parser.parse_known_args()
 
-    print('2222222222222222')
+    print("2222222222222222")
     print(args)
 
     k8sutils.init_k8s()
@@ -212,7 +212,7 @@ def main(parser=None):
         branches_to_fetch={args.branch},
     )
 
-    print('111111111111111')
+    print("111111111111111")
     print(clonedrepo.repo)
 
     if args.pull:
