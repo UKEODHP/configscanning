@@ -83,8 +83,11 @@ class AI4DTERepo:
                 self.parent_dir = self.location.parent.parent.parent
 
         try:
+            print("AAAAAAAAAAAAAAAA")
             self.repo = pygit2.Repository(self.location, pygit2.GIT_REPOSITORY_OPEN_NO_SEARCH)
+            print("aaaaaaaaaaaaaaaaa")
         except pygit2.GitError:  # pylint disable=no-member  (use of C wrapper breaks linting)
+            print("BBBBBBBBBBBBBBBBBb")
             self.repo = None
 
         self.lock = FileLock(
@@ -117,10 +120,6 @@ class AI4DTERepo:
         else:
             # First we must integrate as the app, which gives us limited access.
             auth = Auth.AppAuth(app_id, app_private_key)
-            print(str(app_id)[-3:])
-            print(app_private_key[-40:])
-            logging.info(str(app_id)[-3:])
-            logging.info(app_private_key[-40:])
 
             ghi = GithubIntegration(auth=auth)
 
@@ -199,10 +198,13 @@ class AI4DTERepo:
                 # No clone or clone is invalid at time of construction.
                 # Check again now lock held.
                 try:
+                    print("CCCCCCCCCCCCCCCCCCCC")
                     self.repo = pygit2.Repository(
                         self.location, pygit2.GIT_REPOSITORY_OPEN_NO_SEARCH
                     )
+                    print("cccccccccccccc")
                 except pygit2.GitError:  # pylint disable=no-member
+                    print("DDDDDDDDDDDDDdddd")
                     self.repo = None
 
             if self.repo is None:
@@ -213,11 +215,12 @@ class AI4DTERepo:
                     shutil.rmtree(self.location)
 
                 os.makedirs(self.location, exist_ok=True)
-
+                print("EEEEEEEEEEEE")
                 self.repo = pygit2.init_repository(
                     path=self.location,
                     initial_head="main",
                 )
+                print("eeeeeeeeeeeeeeee")
 
                 self.repo.remotes.create("origin", self.repourl, fetch=refspecs[0])
 
@@ -231,6 +234,14 @@ class AI4DTERepo:
             # First, fetch from remotes. ie, refs/remotes/origin/<branches> become up-to-date with
             # what's in GitHub
             logger.info(f"Fetching for repo {self.repourl} clone in {self.location}")
+
+            config = self.repo.config
+            config.set_multivar("safe.directory", None, "*")
+            config.snapshot()
+
+            print("ZZZZZZZZZZZZZZZZZz")
+            print(self.repo)
+            print(list(self.repo.remotes))
 
             transfer_progress: pygit2.remote.TransferProgress = self.repo.remotes["origin"].fetch(
                 callbacks=pygit2.RemoteCallbacks(

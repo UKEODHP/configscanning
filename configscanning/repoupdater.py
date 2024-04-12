@@ -112,6 +112,7 @@ def pull(app_id, pkey, clonedrepo):
             fobj.write(str(pushed_time))
 
         # Update / clone repo
+        print('zazazazazazazazazaazazaz')
         clonedrepo.update()
 
         # Return updated clone position
@@ -194,6 +195,9 @@ def main(parser=None):
         parser = get_parser()
     args, _ = parser.parse_known_args()
 
+    print('2222222222222222')
+    print(args)
+
     k8sutils.init_k8s()
 
     # This will be printed at the end and is the JSON patch required to update the
@@ -207,6 +211,9 @@ def main(parser=None):
         repourl=args.repourl,
         branches_to_fetch={args.branch},
     )
+
+    print('111111111111111')
+    print(clonedrepo.repo)
 
     if args.pull:
         # Update or clone the repo from its origin.
