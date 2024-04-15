@@ -30,7 +30,7 @@ def get_repo_contents(folder: str) -> list:
     return [
         f.replace(folder, "")
         for f in glob.glob(f"{folder}/**", recursive=True)
-        if f.endswith('.json') and not f.replace(folder, "") == ""
+        if f.endswith(".json") and not f.replace(folder, "") == ""
     ]
 
 
@@ -52,9 +52,11 @@ def match_file(path: str, s3_contents: list, folder: str, s3_folder: str, subdir
     """Checks to see if file already exists in S3"""
     subdir = f"{s3_folder}" if s3_folder else ""
     file_path = f"{subdir}/{path}"
-    path = path.rstrip('/')
+    path = path.rstrip("/")
 
-    if os.path.exists(f"{folder}{subdirs_to_ignore}{path}") and not os.path.isdir(f"{folder}{subdirs_to_ignore}{path}"):
+    if os.path.exists(f"{folder}{subdirs_to_ignore}{path}") and not os.path.isdir(
+        f"{folder}{subdirs_to_ignore}{path}"
+    ):
         return next((f for f in s3_contents if f.key == file_path), None)
     else:
         return None
@@ -72,7 +74,7 @@ def update_file(
     logging.info(f"Updating {path} into {s3_folder if s3_folder else 'top level'}")
 
     subdir = f"{s3_folder}" if s3_folder else ""
-    path = path.rstrip('/')
+    path = path.rstrip("/")
     s3.Bucket(s3_bucket_name).upload_file(f"{folder}{subdirs_to_ignore}{path}", f"{subdir}/{path}")
     return s3_bucket_name, f"{subdir}/{path}"
 
@@ -118,7 +120,9 @@ def main(parser=None):
 
     for path in repo_contents:
         is_outdated = False
-        s3_file = match_file(path, s3_contents, folder, s3_folder, subdirs_to_ignore=subdirs_to_ignore)
+        s3_file = match_file(
+            path, s3_contents, folder, s3_folder, subdirs_to_ignore=subdirs_to_ignore
+        )
 
         is_new = False
 
@@ -138,7 +142,9 @@ def main(parser=None):
             is_new = True
 
         if is_outdated:
-            file = update_file(path, folder, s3_bucket, s3, s3_folder, subdirs_to_ignore=subdirs_to_ignore)
+            file = update_file(
+                path, folder, s3_bucket, s3, s3_folder, subdirs_to_ignore=subdirs_to_ignore
+            )
             if is_new:
                 added_files.append(file)
             else:
