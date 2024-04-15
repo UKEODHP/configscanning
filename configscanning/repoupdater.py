@@ -193,10 +193,10 @@ def main(parser=None):
     if parser is None:
         parser = get_parser()
     args, kwargs = parser.parse_known_args()
-    kwargs.extend(['--workspace', args.workspace_namespace])
-    kwargs.extend(['--branch', args.branch])
-    kwargs.extend(['--repo', args.repourl])
-    kwargs.extend(['--local-folder', args.dest])
+    kwargs.extend(["--workspace", args.workspace_namespace])
+    kwargs.extend(["--branch", args.branch])
+    kwargs.extend(["--repo", args.repourl])
+    kwargs.extend(["--local-folder", args.dest])
 
     k8sutils.init_k8s()
 
@@ -235,9 +235,11 @@ def main(parser=None):
                 )
             )
 
-        scanners = {"main": create_scanner_objs(args.prod_namespace, True),
-                    "develop": create_scanner_objs(args.workspace_namespace, False),
-                    args.branch: create_scanner_objs(args.workspace_namespace, False)}
+        scanners = {
+            "main": create_scanner_objs(args.prod_namespace, True),
+            "develop": create_scanner_objs(args.workspace_namespace, False),
+            args.branch: create_scanner_objs(args.workspace_namespace, False),
+        }
 
         patch["status"]["configScanPosition"] = config_scan(
             clonedrepo,
