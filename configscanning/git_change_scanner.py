@@ -53,6 +53,12 @@ def main():
     parser = combine_arguments(
         args_repoupdater, args_comparefiles, additional_arguments=folder_arguments
     )
+    parser.add_argument(
+        "--workspace",
+        help="Workspace name",
+        default="None",
+        type=str,
+    )
 
     # client = pulsar.Client(os.environ.get("PULSAR_URL"))
     # producer = client.create_producer(topic="harvester", producer_name="git_change_scanner")

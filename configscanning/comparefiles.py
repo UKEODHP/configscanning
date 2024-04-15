@@ -30,7 +30,7 @@ def get_repo_contents(folder: str) -> list:
     return [
         f.replace(folder, "")
         for f in glob.glob(f"{folder}/**", recursive=True)
-        if not f.replace(folder, "") == ""
+        if f.endswith('.json') and not f.replace(folder, "") == ""
     ]
 
 
@@ -48,12 +48,13 @@ def get_s3_contents(s3_bucket_name: str, s3: boto3.resource, s3_folder: str) -> 
     return folder_contents
 
 
-def match_file(path: str, s3_contents: list, folder: str, s3_folder: str):
+def match_file(path: str, s3_contents: list, folder: str, s3_folder: str, subdirs_to_ignore=None):
     """Checks to see if file already exists in S3"""
-    subdir = f"{s3_folder}/" if s3_folder else ""
-    file_path = f"{subdir}{path}"
+    subdir = f"{s3_folder}" if s3_folder else ""
+    file_path = f"{subdir}/{path}"
+    path = path.rstrip('/')
 
-    if os.path.exists(f"{folder}/{path}") and not os.path.isdir(f"{folder}/{path}"):
+    if os.path.exists(f"{folder}{subdirs_to_ignore}{path}") and not os.path.isdir(f"{folder}{subdirs_to_ignore}{path}"):
         return next((f for f in s3_contents if f.key == file_path), None)
     else:
         return None
@@ -66,12 +67,14 @@ def update_file(
     s3: boto3.resource,
     s3_folder: str,
     subdirs_to_ignore: Optional[str] = "",
-) -> None:
+) -> tuple:
     """Updates file in S3 from local directory"""
     logging.info(f"Updating {path} into {s3_folder if s3_folder else 'top level'}")
 
     subdir = f"{s3_folder}" if s3_folder else ""
-    s3.Bucket(s3_bucket_name).upload_file(f"{folder}{subdirs_to_ignore}{path}", f"{subdir}{path}")
+    path = path.rstrip('/')
+    s3.Bucket(s3_bucket_name).upload_file(f"{folder}{subdirs_to_ignore}{path}", f"{subdir}/{path}")
+    return s3_bucket_name, f"{subdir}/{path}"
 
 
 def delete_file(s3_file) -> None:
@@ -94,7 +97,7 @@ def main(parser=None):
     folder = os.path.join(args.clone_dir, "")
     s3_bucket = args.s3_bucket
     s3_folder = args.s3_folder
-    subdirs_to_ignore = args.subdirs_to_ignore
+    subdirs_to_ignore = args.subdirs_to_ignore + "/" if args.subdirs_to_ignore else "/"
 
     added_files = []
     updated_files = []
@@ -115,15 +118,16 @@ def main(parser=None):
 
     for path in repo_contents:
         is_outdated = False
-        s3_file = match_file(path, s3_contents, folder, s3_folder)
+        s3_file = match_file(path, s3_contents, folder, s3_folder, subdirs_to_ignore=subdirs_to_ignore)
+
+        is_new = False
 
         if s3_file:
-            repo_file_contents = open(f"{folder}/{path}").read()
+            repo_file_contents = open(f"{folder}{subdirs_to_ignore}{path}").read()
             s3_file_contents = s3_file.get()["Body"].read().decode("utf-8")
 
             if list(difflib.unified_diff(repo_file_contents, s3_file_contents)):
                 is_outdated = True
-                updated_files.append(s3_file)
 
             s3_contents.remove(s3_file)
 
@@ -131,14 +135,18 @@ def main(parser=None):
             f"{folder}{subdirs_to_ignore}{path}"
         ):  # Folders are created automatically when nested files are uploaded to S3
             is_outdated = True
-            added_files.append(s3_file)
+            is_new = True
 
         if is_outdated:
-            update_file(path, folder, s3_bucket, s3, s3_folder, subdirs_to_ignore=subdirs_to_ignore)
+            file = update_file(path, folder, s3_bucket, s3, s3_folder, subdirs_to_ignore=subdirs_to_ignore)
+            if is_new:
+                added_files.append(file)
+            else:
+                updated_files.append(file)
 
     for file in s3_contents:
         delete_file(file)
-        deleted_files.append(file)
+        deleted_files.append((file.bucket_name, file.key))
 
     return {
         "added_files": added_files,
