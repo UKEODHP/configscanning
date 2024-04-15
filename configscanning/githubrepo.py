@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 # pygit2 uses the C wrapper and pylint falsely things many things are not defined because of this.
 # pylint: disable=no-member
-class AI4DTERepo:
+class GitHubRepo:
     """This represents a cloned repo"""
 
     location: Path

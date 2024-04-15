@@ -22,7 +22,7 @@ except ImportError:
     from yaml import Dumper, SafeLoader
 
 from configscanning import k8sutils
-from configscanning.githubrepo import AI4DTERepo
+from configscanning.githubrepo import GitHubRepo
 
 
 def get_parser():
@@ -124,7 +124,7 @@ def scannable_file(fname):
 
 
 def config_scan(
-    clonedrepo: AI4DTERepo,
+    clonedrepo: GitHubRepo,
     branch_scanner_objs: dict[str, set[object]],
     scan_filter=scannable_file,
     full_scan=False,
@@ -205,7 +205,7 @@ def main(parser=None):
     patch = {"status": {}}
 
     # Locate repo / repo destination.
-    clonedrepo = AI4DTERepo(
+    clonedrepo = GitHubRepo(
         location=None,
         parent_dir=args.dest,
         repourl=args.repourl,
