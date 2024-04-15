@@ -118,9 +118,6 @@ class Scanner:
             self.deleted_files.append(f"{self.s3_prefix}/{file_name}")
 
 
-# python3 -m configscanning.git_change_scanner https://github.com/UKEODHP/catalogue-data /home/hcollingwood/Documents/temp/catalogue-data --app-id-from app-id --app-private-key-from app-private-key --pull --config-scan --enable-scanner configscanning.scanners.eodhp_scanner --branch test_catalog --s3_bucket eodhp-dev-catalogue-population --s3_prefix git-harvester
-
-
 if __name__ == "__main__":
     files = ["catalogue_mini.json", "this_is_a_test_file.json", "catalogue.json"]
     kwargs = [
