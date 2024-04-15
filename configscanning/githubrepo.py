@@ -38,7 +38,7 @@ class AI4DTERepo:
         location: [str | Path | None] = None,
         parent_dir: [str | Path | None] = None,
         repourl: str = None,
-        branches_to_fetch: set[str] = frozenset(("main", "develop")),
+        branches_to_fetch=None,
     ):
         """
         This represents a repo to be cloned and kept up-to-date within the AIPIPE platform.
@@ -57,6 +57,9 @@ class AI4DTERepo:
                              https://github-host-name/orgname/reponame.git
               branches_to_fetch (set[str]): list of branch names to fetch - these MUST exist
         """
+        if branches_to_fetch is None:
+            branches_to_fetch = {"main"}
+
         self.repourl = repourl
         self.repourlobj = urlparse(repourl)
         self.branches_to_fetch = branches_to_fetch

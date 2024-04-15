@@ -10,3 +10,6 @@ class Scanner:
 
     def scan_file(self, fname, data):
         visited_files.append(fname)
+
+    def finish(self):
+        pass
