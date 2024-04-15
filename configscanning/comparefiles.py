@@ -69,14 +69,14 @@ def update_file(
     s3: boto3.resource,
     s3_folder: str,
     subdirs_to_ignore: Optional[str] = "",
-) -> tuple:
+) -> str:
     """Updates file in S3 from local directory"""
     logging.info(f"Updating {path} into {s3_folder if s3_folder else 'top level'}")
 
     subdir = f"{s3_folder}" if s3_folder else ""
     path = path.rstrip("/")
     s3.Bucket(s3_bucket_name).upload_file(f"{folder}{subdirs_to_ignore}{path}", f"{subdir}/{path}")
-    return s3_bucket_name, f"{subdir}/{path}"
+    return f"{subdir}/{path}"
 
 
 def delete_file(s3_file) -> None:
@@ -152,12 +152,13 @@ def main(parser=None):
 
     for file in s3_contents:
         delete_file(file)
-        deleted_files.append((file.bucket_name, file.key))
+        deleted_files.append(file.key)
 
     return {
-        "added_files": added_files,
-        "updated_files": updated_files,
-        "deleted_files": deleted_files,
+        "bucket_name": s3_bucket,
+        "added_keys": added_files,
+        "updated_keys": updated_files,
+        "deleted_keys": deleted_files,
     }
 
 

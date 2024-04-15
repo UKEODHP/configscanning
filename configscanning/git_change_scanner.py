@@ -1,4 +1,5 @@
 import argparse
+import json
 
 # import json
 import logging
@@ -60,15 +61,18 @@ def main():
         type=str,
     )
 
+    args, _ = parser.parse_known_args()
+
     # client = pulsar.Client(os.environ.get("PULSAR_URL"))
-    # producer = client.create_producer(topic="harvester", producer_name="git_change_scanner")
+    # producer = client.create_producer(topic="harvested", producer_name="git_change_scanner")
     #
     # try:
     logging.info("Checking for updates in GitHub repository")
     repoupdater.main(parser)
     logging.info("Pushing changes to S3 bucket")
-    comparefiles.main(parser)
-    # file_summary = comparefiles.main(parser)
+    file_summary = comparefiles.main(parser)
+    file_summary['workspace'] = args.workspace
+    print(json.dumps(file_summary))
     logging.info("Bucket synchronised")
 
     #     msg = json.dumps(file_summary)
