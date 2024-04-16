@@ -38,7 +38,7 @@ class Scanner:
 
         self.initialise_s3()
 
-        dictionary = kwargs['kwargs']
+        dictionary = kwargs["kwargs"]
         self.harvester_id = dictionary["harvester-id"]
         self.s3_bucket_name = dictionary["s3_bucket"]
         self.repo_name = urllib.parse.urlparse(dictionary["repourl"]).path.strip("/")
@@ -50,7 +50,6 @@ class Scanner:
         self.s3_prefix = "/".join(
             [dictionary["s3_prefix"], self.workspace, self.repo_name, self.branch]
         )
-
 
     def initialise_s3(self):
         if os.getenv("AWS_ACCESS_KEY") and os.getenv("AWS_SECRET_ACCESS_KEY"):

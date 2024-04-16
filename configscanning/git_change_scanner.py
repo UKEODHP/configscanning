@@ -100,6 +100,7 @@ def args_to_dictionary(args: list) -> dict:
 
     return dictionary
 
+
 def pull(app_id, pkey, clonedrepo):
     """Clones or updates the local repo from its origin"""
     # We take out a lock to prevent concurrent execution of another pull
