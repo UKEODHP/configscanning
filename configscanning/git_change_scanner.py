@@ -204,7 +204,7 @@ def main(parser=None):
     """
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     logging.getLogger("configscanning").setLevel(logging.DEBUG)
-    time.sleep(10*60)
+    time.sleep(10 * 60)
 
     if parser is None:
         parser = get_parser()
