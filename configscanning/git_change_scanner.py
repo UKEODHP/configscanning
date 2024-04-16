@@ -82,10 +82,23 @@ def get_parser():
         action="store_true",
     )
     parser.add_argument("--delete", help="Delete the local copy of the repo", action="store_true")
-    parser.add_argument("--branch", help="branch to fetch", type=str)
+    parser.add_argument("--branch", help="branch to fetch", default="main", type=str)
 
     return parser
 
+
+def args_to_dictionary(args: list) -> dict:
+    """Converts a list of args in the format ['--a', 'A', '--b', 'B'] to a dictionary: {'a': A, 'b': 'B'}"""
+    dictionary = {}
+    key = None
+    for arg in args:
+        if arg.startswith("--"):
+            key = arg[2:]
+        elif key:
+            dictionary[key] = arg
+            key = None
+
+    return dictionary
 
 def pull(app_id, pkey, clonedrepo):
     """Clones or updates the local repo from its origin"""
@@ -193,10 +206,7 @@ def main(parser=None):
     if parser is None:
         parser = get_parser()
     args, kwargs = parser.parse_known_args()
-    kwargs.extend(["--workspace", args.workspace_namespace])
-    kwargs.extend(["--branch", args.branch])
-    kwargs.extend(["--repo", args.repourl])
-    kwargs.extend(["--local-folder", args.dest])
+    all_args = vars(args) | args_to_dictionary(kwargs)
 
     k8sutils.init_k8s()
 
@@ -229,7 +239,7 @@ def main(parser=None):
                         repourl=args.repourl,
                         is_prod=is_prod,
                         workspace_namespace=args.workspace_namespace,
-                        kwargs=kwargs,
+                        kwargs=all_args,
                     ),
                     scanner_mods,
                 )

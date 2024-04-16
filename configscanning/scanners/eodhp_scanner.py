@@ -10,20 +10,6 @@ import pulsar
 logger = logging.getLogger(__name__)
 
 
-def args_to_dictionary(args: list) -> dict:
-    """Converts a list of args in the format ['--a', 'A', '--b', 'B'] to a dictionary: {'a': A, 'b': 'B'}"""
-    dictionary = {}
-    key = None
-    for arg in args:
-        if arg.startswith("--"):
-            key = arg[2:]
-        elif key:
-            dictionary[key] = arg
-            key = None
-
-    return dictionary
-
-
 def update_file(
     local_path: str,
     s3_path: str,
@@ -52,17 +38,19 @@ class Scanner:
 
         self.initialise_s3()
 
-        dictionary = args_to_dictionary(kwargs["kwargs"])
-
+        dictionary = kwargs['kwargs']
+        self.harvester_id = dictionary["harvester-id"]
         self.s3_bucket_name = dictionary["s3_bucket"]
-        self.repo_name = urllib.parse.urlparse(dictionary["repo"]).path.strip("/")
-        self.branch = dictionary["branch"]
+        self.repo_name = urllib.parse.urlparse(dictionary["repourl"]).path.strip("/")
+        self.branch = dictionary.get("branch", "main")
+        self.workspace = dictionary["workspace_namespace"]
+        self.local_folder = dictionary["dest"]
+        self.target = dictionary["target"]
+
         self.s3_prefix = "/".join(
-            [dictionary["s3_prefix"], dictionary["workspace"], self.repo_name, self.branch]
+            [dictionary["s3_prefix"], self.workspace, self.repo_name, self.branch]
         )
 
-        self.workspace = dictionary["workspace"]
-        self.local_folder = dictionary["local-folder"]
 
     def initialise_s3(self):
         if os.getenv("AWS_ACCESS_KEY") and os.getenv("AWS_SECRET_ACCESS_KEY"):
@@ -76,19 +64,23 @@ class Scanner:
             self.s3 = boto3.resource("s3")
 
     def finish(self):
-
         client = pulsar.Client(os.environ.get("PULSAR_URL"))
         producer = client.create_producer(topic="harvested", producer_name="git_change_scanner")
 
         try:
             message_information = {
+                "id": self.harvester_id,
                 "workspace": self.workspace,
                 "repository": self.repo_name,
                 "branch": self.branch,
                 "added_keys": self.added_files,
                 "updated_keys": self.updated_files,
                 "deleted_keys": self.deleted_files,
+                "source": "/",
+                "target": self.target,
             }
+
+            logging.info(message_information)
 
             msg = json.dumps(message_information)
             producer.send(msg.encode("utf-8"))
@@ -116,31 +108,3 @@ class Scanner:
         else:  # s3 file is deleted
             delete_file(s3_path, self.s3_bucket_name, self.s3)
             self.deleted_files.append(f"{self.s3_prefix}/{file_name}")
-
-
-if __name__ == "__main__":
-    files = ["catalogue_mini.json", "this_is_a_test_file.json", "catalogue.json"]
-    kwargs = [
-        "--branch",
-        "test_catalog",
-        "--s3_bucket",
-        "eodhp-dev-catalogue-population",
-        "--s3_prefix",
-        "git-harvester",
-        "--repo",
-        "UKEODHP/catalogue-data",
-        "--workspace",
-        "workspace",
-        "--local-folder",
-        "/home/hcollingwood/Documents/temp/catalogue-data-2",
-    ]
-    scanner = Scanner(
-        namespace="a",
-        repourl="catalogue-data",
-        is_prod=False,
-        workspace_namespace="workspace_namespace",
-        kwargs=kwargs,
-    )
-
-    for file in files:
-        scanner.scan_file(file)
