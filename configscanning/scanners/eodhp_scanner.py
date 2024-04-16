@@ -72,6 +72,7 @@ class Scanner:
                 "workspace": self.workspace,
                 "repository": self.repo_name,
                 "branch": self.branch,
+                "bucket_name": self.s3_bucket_name,
                 "added_keys": self.added_files,
                 "updated_keys": self.updated_files,
                 "deleted_keys": self.deleted_files,
