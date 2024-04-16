@@ -39,13 +39,13 @@ class Scanner:
         self.initialise_s3()
 
         dictionary = kwargs["kwargs"]
-        self.harvester_id = dictionary["harvester-id"]
+        self.harvester_id = dictionary.get("harvester-id", None)
         self.s3_bucket_name = dictionary["s3_bucket"]
         self.repo_name = urllib.parse.urlparse(dictionary["repourl"]).path.strip("/")
         self.branch = dictionary.get("branch", "main")
-        self.workspace = dictionary["workspace_namespace"]
+        self.workspace = dictionary.get("workspace_namespace", "workspace")
         self.local_folder = dictionary["dest"]
-        self.target = dictionary["target"]
+        self.target = dictionary.get("target", None)
 
         self.s3_prefix = "/".join(
             [dictionary["s3_prefix"], self.workspace, self.repo_name, self.branch]
