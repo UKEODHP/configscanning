@@ -230,7 +230,16 @@ def main(parser=None):
 
     if args.config_scan:
         # Scan the repo branches for config files and process them.
-        scanner_mods = {importlib.import_module(modname) for modname in args.enable_scanner}
+
+        scanner_mods = []
+        for modname in args.enable_scanner:
+            dir, module_name = os.path.split(os.path.abspath(modname))
+            sys.path.append(dir)
+            spec = importlib.util.find_spec(module_name)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+
+            scanner_mods.append(module)
 
         def create_scanner_objs(namespace, is_prod):
             return list(
