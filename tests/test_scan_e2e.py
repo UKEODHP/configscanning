@@ -5,14 +5,14 @@ import pygit2
 # noinspection PyPackageRequirements
 import pytest
 
-import configscanning.repoupdater
+import configscanning.git_change_scanner
 import configscanning.scanners.filelister
-from configscanning.githubrepo import AI4DTERepo
+from configscanning.githubrepo import GitHubRepo
 
 
 @pytest.mark.integrationtest
 def test_scan_for_yaml(tmpdir):
-    repo = AI4DTERepo(
+    repo = GitHubRepo(
         location=None,
         parent_dir=str(tmpdir),
         repourl="https://github.com/octocat/Spoon-Knife.git",

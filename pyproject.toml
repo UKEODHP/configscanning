@@ -1,5 +1,5 @@
 [project]
-name = "config-scanning"
+name = "configscanning"
 version = "0.1.0"
 description = "Service management resource deployer"
 readme = "README.md"
@@ -58,6 +58,7 @@ dependencies = [
   "filelock",
   "pyyaml",
   "boto3",
+  "pulsar-client"
 ]
 
 # List additional groups of dependencies here (e.g. development

@@ -20,4 +20,4 @@ ADD configscanning ./configscanning/
 ADD pyproject.toml ./
 RUN --mount=type=cache,target=/root/.cache/pip pip3 install -r requirements.txt .
 
-CMD python -m configscanning.repoupdater $1 $2
+CMD python -m configscanning.git_change_scanner $1 $2

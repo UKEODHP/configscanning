@@ -7,13 +7,13 @@ import py.path
 # noinspection PyPackageRequirements
 import pytest
 
-from configscanning.githubrepo import AI4DTERepo
+from configscanning.githubrepo import GitHubRepo
 
 TESTDIR = (Path(__file__).parent / "scratch/configscannertest/").absolute()
 
 
 def test_determines_repo_name_and_local_location_from_url():
-    repo = AI4DTERepo(
+    repo = GitHubRepo(
         location=None,
         parent_dir=str(TESTDIR),
         repourl="https://github.com/AI4DTE/examples-xgboost-simple.git",
@@ -26,7 +26,7 @@ def test_determines_repo_name_and_local_location_from_url():
 
 
 def test_determines_parent_dir_from_location():
-    repo = AI4DTERepo(
+    repo = GitHubRepo(
         location=str(TESTDIR / "github.com/AI4DTE/examples-xgboost-simple"),
         repourl="https://github.com/AI4DTE/examples-xgboost-simple.git",
     )
@@ -39,7 +39,7 @@ def test_determines_parent_dir_from_location():
 
 @pytest.mark.integrationtest
 def test_clone_public_repo_with_only_main_branch(tmpdir: py.path.local):
-    repo = AI4DTERepo(
+    repo = GitHubRepo(
         location=None,
         parent_dir=str(tmpdir),
         repourl="https://github.com/octocat/Spoon-Knife.git",
@@ -68,7 +68,7 @@ def test_clone_public_repo_with_only_main_branch(tmpdir: py.path.local):
 
 @pytest.mark.integrationtest
 def test_clone_public_repo_with_nonstandard_branches(tmpdir: py.path.local):
-    repo = AI4DTERepo(
+    repo = GitHubRepo(
         location=None,
         parent_dir=str(tmpdir),
         repourl="https://github.com/octocat/Spoon-Knife.git",
@@ -143,7 +143,7 @@ def test_clone_public_repo_with_nonstandard_branches(tmpdir: py.path.local):
 
 @pytest.mark.integrationtest
 def test_authenticating_to_github(tmpdir):
-    repo = AI4DTERepo(
+    repo = GitHubRepo(
         location=None,
         parent_dir=str(tmpdir),
         repourl="https://github.com/AI4DTE/ide-images.git",
@@ -163,7 +163,7 @@ def test_authenticating_to_github(tmpdir):
 
 def test_changed_files_between_commits():
     # This is /this/ git repo.
-    repo = AI4DTERepo(
+    repo = GitHubRepo(
         location=".",
         repourl="https://github.com/AI4DTE/service-manager.git",
     )
@@ -180,7 +180,7 @@ def test_changed_files_between_commits():
 
 def test_filtered_changed_files_between_commits():
     # This is /this/ git repo.
-    repo = AI4DTERepo(
+    repo = GitHubRepo(
         location=".",
         repourl="https://github.com/AI4DTE/service-manager.git",
     )
@@ -196,7 +196,7 @@ def test_filtered_changed_files_between_commits():
 
 def test_filtered_all_files_at_commit():
     # This is /this/ git repo.
-    repo = AI4DTERepo(
+    repo = GitHubRepo(
         location=".",
         repourl="https://github.com/AI4DTE/service-manager.git",
     )

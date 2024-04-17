@@ -6,7 +6,6 @@ Workspaces.
 
 import argparse
 import importlib
-import json
 import logging
 import os
 import shutil
@@ -23,64 +22,83 @@ except ImportError:
     from yaml import Dumper, SafeLoader
 
 from configscanning import k8sutils
-from configscanning.githubrepo import AI4DTERepo
+from configscanning.githubrepo import GitHubRepo
 
-parser = argparse.ArgumentParser()
-parser.add_argument("repourl", help="repository URL", type=str)
-parser.add_argument("dest", help="checkout location (parent dir of clone)", type=str)
-parser.add_argument(
-    "--app-id-from",
-    help="Location of file containing GitHub app ID (note: not 'client id')",
-    default="/etc/ai4dte/github-creds/GITHUB_APP_ID",
-    type=str,
-)
-parser.add_argument(
-    "--app-private-key-from",
-    help="File containing GitHub app private key",
-    default="/etc/ai4dte/github-creds/GITHUB_APP_PRIVATE_KEY",
-    type=str,
-)
-parser.add_argument(
-    "--enable-scanner",
-    help=(
-        "Specifies the scanners to run on the repo using Python module names. "
-        + "Can be specified multiple times."
-    ),
-    action="append",
-    default=[
-        "configscanning.scanners.modelcrd",
-    ],
-)
-parser.add_argument(
-    "--workspace-namespace",
-    help="Target namespace for Kubernetes resources created by the scanner from develop-branch "
-    + "catalogue entries",
-    type=str,
-    default="default",
-)
-parser.add_argument(
-    "--prod-namespace",
-    help="Target namespace for Kubernetes resources created by the scanner from main-branch "
-    + "catalogue entries",
-    type=str,
-    default="default",
-)
-parser.add_argument(
-    "--full-scan",
-    help="Scan every file, not just those modified compared to the last scan tag",
-    action="store_true",
-)
-parser.add_argument(
-    "--pull",
-    help="Update (pull or clone) our copy of the repo from upstream",
-    action="store_true",
-)
-parser.add_argument(
-    "--config-scan",
-    help="Scan for and process config files in the cloned repo",
-    action="store_true",
-)
-parser.add_argument("--delete", help="Delete the local copy of the repo", action="store_true")
+
+def get_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("repourl", help="repository URL", type=str)
+    parser.add_argument(
+        "dest", help="checkout location (parent dir of clone)", type=str, default="."
+    )
+    parser.add_argument(
+        "--app-id-from",
+        help="Location of file containing GitHub app ID (note: not 'client id')",
+        default="/etc/ai4dte/github-creds/GITHUB_APP_ID",
+        type=str,
+    )
+    parser.add_argument(
+        "--app-private-key-from",
+        help="File containing GitHub app private key",
+        default="/etc/ai4dte/github-creds/GITHUB_APP_PRIVATE_KEY",
+        type=str,
+    )
+    parser.add_argument(
+        "--enable-scanner",
+        help=(
+            "Specifies the scanners to run on the repo using Python module names. "
+            + "Can be specified multiple times."
+        ),
+        action="append",
+        default=[],
+    )
+    parser.add_argument(
+        "--workspace-namespace",
+        help="Target namespace for Kubernetes resources created by the scanner from develop-branch "
+        + "catalogue entries",
+        type=str,
+        default="default",
+    )
+    parser.add_argument(
+        "--prod-namespace",
+        help="Target namespace for Kubernetes resources created by the scanner from main-branch "
+        + "catalogue entries",
+        type=str,
+        default="default",
+    )
+    parser.add_argument(
+        "--full-scan",
+        help="Scan every file, not just those modified compared to the last scan tag",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--pull",
+        help="Update (pull or clone) our copy of the repo from upstream",
+        action="store_true",
+    )
+    parser.add_argument(
+        "--config-scan",
+        help="Scan for and process config files in the cloned repo",
+        action="store_true",
+    )
+    parser.add_argument("--delete", help="Delete the local copy of the repo", action="store_true")
+    parser.add_argument("--branch", help="branch to fetch", default="main", type=str)
+
+    return parser
+
+
+def args_to_dictionary(args: list) -> dict:
+    """Converts a list of args in the format ['--a', 'A', '--b', 'B'] to a dictionary: {'a': A, 'b': 'B'}"""
+    dictionary = {}
+    key = None
+    for arg in args:
+        if arg.startswith("--"):
+            key = arg[2:]
+        elif key:
+            dictionary[key] = arg
+            key = None
+
+    return dictionary
 
 
 def pull(app_id, pkey, clonedrepo):
@@ -120,7 +138,7 @@ def scannable_file(fname):
 
 
 def config_scan(
-    clonedrepo: AI4DTERepo,
+    clonedrepo: GitHubRepo,
     branch_scanner_objs: dict[str, set[object]],
     scan_filter=scannable_file,
     full_scan=False,
@@ -157,13 +175,16 @@ def config_scan(
                     if fname.endswith(".yaml") or fname.endswith(".yml"):
                         data = yaml.load(file, SafeLoader)
                     elif fname.endswith(".json"):
-                        data = json.load(file)
+                        data = None
                     else:
                         data = file.read()
 
                 logging.debug("Scanning file %s", fname)
                 for scanner_obj in scanner_objs:
                     scanner_obj.scan_file(Path(fname), data)
+
+            for scanner_obj in scanner_objs:
+                scanner_obj.finish()
 
             # Tag the last scan position so we can find it next time.
             clonedrepo.create_tag(last_scan_tag, "Config scanner ran to here")
@@ -175,7 +196,7 @@ def config_scan(
         }
 
 
-def main():
+def main(parser=None):
     """
     This runs when we're invoked as a command-line tool. It's a separate function so that its
     variables have non-global scope.
@@ -183,7 +204,11 @@ def main():
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     logging.getLogger("configscanning").setLevel(logging.DEBUG)
 
-    args = parser.parse_args()
+    if parser is None:
+        parser = get_parser()
+    args, kwargs = parser.parse_known_args()
+    all_args = vars(args) | args_to_dictionary(kwargs)
+
     k8sutils.init_k8s()
 
     # This will be printed at the end and is the JSON patch required to update the
@@ -191,12 +216,12 @@ def main():
     patch = {"status": {}}
 
     # Locate repo / repo destination.
-    clonedrepo = AI4DTERepo(
+    clonedrepo = GitHubRepo(
         location=None,
         parent_dir=args.dest,
         repourl=args.repourl,
+        branches_to_fetch={args.branch},
     )
-
     if args.pull:
         # Update or clone the repo from its origin.
         # Gather GitHub credentials.
@@ -205,7 +230,16 @@ def main():
 
     if args.config_scan:
         # Scan the repo branches for config files and process them.
-        scanner_mods = {importlib.import_module(modname) for modname in args.enable_scanner}
+
+        scanner_mods = []
+        for modname in args.enable_scanner:
+            dir, module_name = os.path.split(os.path.abspath(modname))
+            sys.path.append(dir)
+            spec = importlib.util.find_spec(module_name)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+
+            scanner_mods.append(module)
 
         def create_scanner_objs(namespace, is_prod):
             return list(
@@ -215,17 +249,21 @@ def main():
                         repourl=args.repourl,
                         is_prod=is_prod,
                         workspace_namespace=args.workspace_namespace,
+                        kwargs=all_args,
                     ),
                     scanner_mods,
                 )
             )
 
+        scanners = {
+            "main": create_scanner_objs(args.prod_namespace, True),
+            "develop": create_scanner_objs(args.workspace_namespace, False),
+            args.branch: create_scanner_objs(args.workspace_namespace, False),
+        }
+
         patch["status"]["configScanPosition"] = config_scan(
             clonedrepo,
-            {
-                "main": create_scanner_objs(args.prod_namespace, True),
-                "develop": create_scanner_objs(args.workspace_namespace, False),
-            },
+            scanners,
             full_scan=args.full_scan,
         )
 
@@ -240,7 +278,6 @@ def main():
     # Print update to Repo CR's status field.
     sys.stderr.write(f"Patch is {patch}\n")
     print(yaml.dump(patch, Dumper=Dumper, default_flow_style=False))
-    sys.exit(0)
 
 
 if __name__ == "__main__":
