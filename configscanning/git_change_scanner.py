@@ -171,13 +171,16 @@ def config_scan(
 
             # Scan the files.
             for fname in files_to_scan:
-                with open(clonedrepo.location / fname, "rt", encoding="utf8") as file:
-                    if fname.endswith(".yaml") or fname.endswith(".yml"):
-                        data = yaml.load(file, SafeLoader)
-                    elif fname.endswith(".json"):
-                        data = None
-                    else:
-                        data = file.read()
+                try:
+                    with open(clonedrepo.location / fname, "rt", encoding="utf8") as file:
+                        if fname.endswith(".yaml") or fname.endswith(".yml"):
+                            data = yaml.load(file, SafeLoader)
+                        elif fname.endswith(".json"):
+                            data = None
+                        else:
+                            data = file.read()
+                except FileNotFoundError:
+                    data = None
 
                 logging.debug("Scanning file %s", fname)
                 for scanner_obj in scanner_objs:
