@@ -181,8 +181,6 @@ def config_scan(
                             data = file.read()
                 except FileNotFoundError:
                     data = None
-                    
-
 
                 logging.debug("Scanning file %s", fname)
                 for scanner_obj in scanner_objs:
