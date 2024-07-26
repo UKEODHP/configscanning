@@ -1,6 +1,5 @@
 name: All checks
 on:
-  pull_request:
   workflow_call:
   push:
     tags:
