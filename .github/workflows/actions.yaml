@@ -57,7 +57,7 @@ jobs:
     needs: get-tag-name
     uses: EO-DataHub/github-actions/.github/workflows/docker-image-to-aws-ecr.yaml@main
     with:
-      image_name: eodhp-web-presence
+      image_name: config-scanning
       image_tag: ${{ needs.get-tag-name.outputs.image_tag }}
     permissions:
       id-token: write
