@@ -1,6 +1,6 @@
 .PHONY: dockerbuild dockerpush test testonce ruff black lint isort pre-commit-check requirements-update requirements setup
 VERSION ?= latest
-IMAGENAME = configscanning
+IMAGENAME = eodhp-web-presence
 DOCKERREPO ?= public.ecr.aws/n1b3o1k2/ukeodhp
 
 dockerbuild:
@@ -11,10 +11,10 @@ dockerpush: dockerbuild testdocker
 	docker push ${DOCKERREPO}/${IMAGENAME}:${VERSION}
 
 test:
-	(set -a; . ./.env; DEBUG=True PAGE_CACHE_LENGTH=0 STATIC_FILE_CACHE_LENGTH=0 ./venv/bin/ptw ./eodhp_web_presence)
+	./venv/bin/ptw configscanning
 
 testonce:
-	(set -a; . ./.env; DEBUG=True PAGE_CACHE_LENGTH=0 STATIC_FILE_CACHE_LENGTH=0 ./venv/bin/pytest ./eodhp_web_presence)
+	./venv/bin/pytest
 
 ruff:
 	./venv/bin/ruff check .
@@ -23,7 +23,7 @@ black:
 	./venv/bin/black .
 
 isort:
-	./venv/bin/isort . --check --diff
+	./venv/bin/isort . --check --diff --profile black
 
 validate-pyproject:
 	validate-pyproject pyproject.toml
@@ -44,7 +44,7 @@ requirements-update: venv
 
 venv:
 	virtualenv -p python3.11 venv
-	./venv/bin/python -m ensurepip -U 
+	./venv/bin/python -m ensurepip -U
 	./venv/bin/pip3 install pip-tools
 
 .make-venv-installed: venv requirements.txt requirements-dev.txt
@@ -55,5 +55,5 @@ venv:
 	./venv/bin/pre-commit install
 	curl -o .pre-commit-config.yaml https://raw.githubusercontent.com/EO-DataHub/github-actions/main/.pre-commit-config-python.yaml
 
-setup: venv requirements .make-venv-installed .git/hooks/pre-commit
+setup: venv requirements .make-venv-installed .make-node_modules-installed .git/hooks/pre-commit
 
