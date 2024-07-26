@@ -23,7 +23,7 @@ black:
 	./venv/bin/black .
 
 isort:
-	./venv/bin/isort . --check --diff --profile black
+	./venv/bin/isort . --profile black
 
 validate-pyproject:
 	validate-pyproject pyproject.toml
