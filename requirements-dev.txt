@@ -59,6 +59,8 @@ idna==3.7
     # via requests
 iniconfig==2.0.0
     # via pytest
+isort==5.13.2
+    # via configscanning (pyproject.toml)
 jinja2==3.1.4
     # via moto
 jmespath==1.0.1
@@ -96,7 +98,7 @@ platformdirs==4.2.2
     #   virtualenv
 pluggy==1.5.0
     # via pytest
-pre-commit==3.7.1
+pre-commit==3.8.0
     # via configscanning (pyproject.toml)
 pulsar-client==3.5.0
     # via configscanning (pyproject.toml)
@@ -126,6 +128,8 @@ pytest==8.3.2
     #   pytest-mock
     #   pytest-xdist
 pytest-mock==3.14.0
+    # via configscanning (pyproject.toml)
+pytest-watcher==0.4.2
     # via configscanning (pyproject.toml)
 pytest-xdist==3.6.1
     # via configscanning (pyproject.toml)
@@ -172,6 +176,8 @@ urllib3==2.2.2
     #   responses
 virtualenv==20.26.3
     # via pre-commit
+watchdog==4.0.1
+    # via pytest-watcher
 websocket-client==1.8.0
     # via kubernetes
 werkzeug==3.0.3
