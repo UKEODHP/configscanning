@@ -219,7 +219,7 @@ def test_main__different_file(parameters):
 
 def test_main__s3_only_file(parameters):
     with moto.mock_aws(), tempfile.TemporaryDirectory() as temp_dir:
-        sys.argv = [None, temp_dir, parameters["bucket_name"], ""]
+        sys.argv = [None, temp_dir, parameters["bucket_name"], "test"]
 
         s3_only_file_name = "s3.txt"
         folder_path = f"{temp_dir}/test"
@@ -238,7 +238,6 @@ def test_main__s3_only_file(parameters):
 
         s3_files = list(s3_resource.Bucket(parameters["bucket_name"]).objects.all())
         assert len(s3_files) == 1
-
         os.remove(path)
 
         main()
@@ -250,7 +249,7 @@ def test_main__s3_only_file(parameters):
 
 def test_main__local_only_file(parameters):
     with moto.mock_aws(), tempfile.TemporaryDirectory() as temp_dir:
-        sys.argv = [None, temp_dir, parameters["bucket_name"], ""]
+        sys.argv = [None, temp_dir, parameters["bucket_name"], "test"]
 
         local_only_file_name = "local.txt"
         folder_path = f"{temp_dir}/test"
