@@ -39,8 +39,8 @@ class AIPIPEGitHubOrganization:
               app_id (str): AIPIPE GitHub App ID - provided when we register our app.
                             There is one per app registration (this is not app installation
                             specific, but rather AIPIPE installation specific).
-              app_private_key (str): A private generated for our app registration in the app
-                                     management page github.com/organizations/AI4DTE/settings/apps
+              app_private_key (str): A private key generated for our app registration in the app
+                                     management page github.com/organizations/org/settings/apps
         """
         # First we must authenticate as the app, which gives us limited access.
         auth = Auth.AppAuth(app_id, app_private_key)

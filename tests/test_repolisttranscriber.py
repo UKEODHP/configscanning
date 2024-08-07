@@ -11,26 +11,6 @@ from configscanning.repolisttranscriber import SourceAndTarget, transcribe
 # noinspection PyPackageRequirements
 
 
-# This can be useful for experimentation with the real API in the JASMIN dev cluster.
-# Probably not such a good routine unit test, though.
-#
-# @pytest.mark.integrationtest
-# def test_get_repos_for_team_returns_correct_repos():
-#     if "KUBERNETES_SERVICE_HOST" in os.environ:
-#         kubernetes.config.load_incluster_config()
-#     else:
-#         kubernetes.config.load_kube_config(context="oidc@dev-kubernetes")
-
-#     with kubernetes.client.ApiClient() as k8s_client:
-#         ai4dteConfig: V1ConfigMap = CoreV1Api(k8s_client).read_namespaced_config_map(
-#             "ai4dte-config", "ai4dte"
-#         )
-
-#     all_workspaces = configscanning.repolisttranscriber.tosync_for_all_workspaces()
-
-#     assert all_workspaces == {}
-
-
 def test_get_all_sync_targets_returns_correct_targets(mocker: MockerFixture):
     mocker.patch("kubernetes.config")
     mocker.patch("kubernetes.client")

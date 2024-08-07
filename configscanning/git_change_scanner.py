@@ -34,13 +34,13 @@ def get_parser():
     parser.add_argument(
         "--app-id-from",
         help="Location of file containing GitHub app ID (note: not 'client id')",
-        default="/etc/ai4dte/github-creds/GITHUB_APP_ID",
+        default="/github-creds/GITHUB_APP_ID",
         type=str,
     )
     parser.add_argument(
         "--app-private-key-from",
         help="File containing GitHub app private key",
-        default="/etc/ai4dte/github-creds/GITHUB_APP_PRIVATE_KEY",
+        default="/github-creds/GITHUB_APP_PRIVATE_KEY",
         type=str,
     )
     parser.add_argument(
@@ -158,7 +158,7 @@ def config_scan(
             clonedrepo.checkout_and_reset(ref)
 
             # Find files changed since last scan.
-            last_scan_tag = f"_AI4DTE_SCANNED_{branch}"
+            last_scan_tag = f"_SCANNED_{branch}"
             last_scan_tag_ref = f"refs/tags/{last_scan_tag}"
             files_to_scan = clonedrepo.changed_files(
                 (
@@ -179,6 +179,7 @@ def config_scan(
                             data = None
                         else:
                             data = file.read()
+
                 except FileNotFoundError:
                     data = None
 

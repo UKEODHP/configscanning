@@ -16,23 +16,23 @@ def test_determines_repo_name_and_local_location_from_url():
     repo = GitHubRepo(
         location=None,
         parent_dir=str(TESTDIR),
-        repourl="https://github.com/AI4DTE/examples-xgboost-simple.git",
+        repourl="https://github.com/octocat/Spoon-Knife.git",
     )
 
-    assert repo.gh_org == "AI4DTE"
-    assert repo.gh_reponame == "examples-xgboost-simple"
+    assert repo.gh_org == "octocat"
+    assert repo.gh_reponame == "Spoon-Knife"
     assert repo.git_host == "github.com"
-    assert repo.location == TESTDIR / "github.com/AI4DTE/examples-xgboost-simple"
+    assert repo.location == TESTDIR / "github.com/octocat/Spoon-Knife"
 
 
 def test_determines_parent_dir_from_location():
     repo = GitHubRepo(
-        location=str(TESTDIR / "github.com/AI4DTE/examples-xgboost-simple"),
-        repourl="https://github.com/AI4DTE/examples-xgboost-simple.git",
+        location=str(TESTDIR / "github.com/octocat/Spoon-Knife"),
+        repourl="https://github.com/octocat/Spoon-Knife.git",
     )
 
-    assert repo.gh_org == "AI4DTE"
-    assert repo.gh_reponame == "examples-xgboost-simple"
+    assert repo.gh_org == "octocat"
+    assert repo.gh_reponame == "Spoon-Knife"
     assert repo.git_host == "github.com"
     assert repo.parent_dir == TESTDIR
 
@@ -141,40 +141,22 @@ def test_clone_public_repo_with_nonstandard_branches(tmpdir: py.path.local):
     }
 
 
-@pytest.mark.integrationtest
-def test_authenticating_to_github(tmpdir):
-    repo = GitHubRepo(
-        location=None,
-        parent_dir=str(tmpdir),
-        repourl="https://github.com/AI4DTE/ide-images.git",
-        branches_to_fetch={"main", "develop"},
-    )
-
-    # Add a file called this with a private key generated at the bottom of
-    # https://github.com/organizations/AI4DTE/settings/apps/ai4dte-kind-dev-ahayward
-    with open("scratch/ai4dte-kind-dev-ahayward-private-key", "rt") as file:
-        pkey = file.read()
-
-    repo.authenticate_to_github(367601, pkey)
-
-    repo.update()
-    repo.update()
-
-
 def test_changed_files_between_commits():
     # This is /this/ git repo.
     repo = GitHubRepo(
         location=".",
-        repourl="https://github.com/AI4DTE/service-manager.git",
+        repourl="https://github.com/EO-DataHub/configscanning.git",
     )
 
     file_list = repo.changed_files(
-        "152ecfa0f4befedefffb4b09a1848abe8903bd3e", "9bcb9e07d97c6b00c141a8899266ebb0b95cf149"
+        "e2c95a4233dd25994c02c42010bcbbcd751021cc", "35c92758332eb1f8d0e6be9a5f5ad6960bf051b2"
     )
 
     assert file_list == {
-        "samples/3-workspace-mlflow-listedversions.yaml",
-        "service-manager/model-manager/k8smodelgen.py",
+        "configscanning/comparefiles.py",
+        "tests/test_comparefiles.py",
+        "pyproject.toml",
+        "requirements-dev.txt",
     }
 
 
@@ -182,33 +164,29 @@ def test_filtered_changed_files_between_commits():
     # This is /this/ git repo.
     repo = GitHubRepo(
         location=".",
-        repourl="https://github.com/AI4DTE/service-manager.git",
+        repourl="https://github.com/EO-DataHub/configscanning.git",
     )
 
     file_list = repo.changed_files(
-        "152ecfa0f4befedefffb4b09a1848abe8903bd3e",
-        "9bcb9e07d97c6b00c141a8899266ebb0b95cf149",
+        "8fe01ff65a5866d85581f9d2c97c0e1682c7c152",
+        "eb1b2447b82295f35337f4afaef7fd45be26ec6a",
         only_matching=lambda f: f.endswith(".yaml"),
     )
 
-    assert file_list == {"samples/3-workspace-mlflow-listedversions.yaml"}
+    assert file_list == {".github/workflows/actions.yaml"}
 
 
 def test_filtered_all_files_at_commit():
     # This is /this/ git repo.
     repo = GitHubRepo(
         location=".",
-        repourl="https://github.com/AI4DTE/service-manager.git",
+        repourl="https://github.com/EO-DataHub/configscanning.git",
     )
 
     file_list = repo.changed_files(
         since=None,
-        until="9bcb9e07d97c6b00c141a8899266ebb0b95cf149",
+        until="077f19eaeb22e709b3eca1cc498ea5cd8e1f9add",
         only_matching=lambda f: f.endswith(".yaml"),
     )
 
-    assert file_list == {
-        "samples/1-workspace-mlflow-simple.yaml",
-        "samples/2-external-s3.yaml",
-        "samples/3-workspace-mlflow-listedversions.yaml",
-    }
+    assert file_list == {".github/workflows/docker-image-to-aws-ecr.yaml"}
