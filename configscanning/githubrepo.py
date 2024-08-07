@@ -158,7 +158,7 @@ class GitHubRepo:
             commit_id = self.repo.branches[branch_name].target
             commit: pygit2.Commit = self.repo.get(commit_id)
             return {
-                "hash": commit.hex,
+                "hash": commit.id,
                 "summary": commit.message.split("\n")[0],
                 "commitDate": commit.commit_time,
             }
@@ -299,7 +299,7 @@ class GitHubRepo:
         self.repo.create_tag(
             name,
             self.repo.head.target,
-            pygit2.GIT_REF_OID,  # Is this correct? It's not documented what's allowed here.
+            True,  # Is this correct? It's not documented what's allowed here.
             pygit2.Signature("Config Scanner", "configscanner@ai-pipeline.org"),
             message,
         )
