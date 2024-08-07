@@ -299,7 +299,7 @@ class GitHubRepo:
         self.repo.create_tag(
             name,
             self.repo.head.target,
-            True,  # Is this correct? It's not documented what's allowed here.
+            True,
             pygit2.Signature("Config Scanner", "configscanner@ai-pipeline.org"),
             message,
         )
