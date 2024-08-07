@@ -44,13 +44,13 @@ There are three modes:
 parser.add_argument(
     "--app-id-from",
     help="Location of file containing GitHub app ID (note: not 'client id')",
-    default="/etc/ai4dte/github-creds/GITHUB_APP_ID",
+    default="/github-creds/GITHUB_APP_ID",
     type=str,
 )
 parser.add_argument(
     "--app-private-key-from",
     help="File containing GitHub app private key",
-    default="/etc/ai4dte/github-creds/GITHUB_APP_PRIVATE_KEY",
+    default="/github-creds/GITHUB_APP_PRIVATE_KEY",
     type=str,
 )
 parser.add_argument(

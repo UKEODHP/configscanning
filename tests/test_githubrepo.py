@@ -16,23 +16,23 @@ def test_determines_repo_name_and_local_location_from_url():
     repo = GitHubRepo(
         location=None,
         parent_dir=str(TESTDIR),
-        repourl="https://github.com/AI4DTE/examples-xgboost-simple.git",
+        repourl="https://github.com/octocat/Spoon-Knife.git",
     )
 
-    assert repo.gh_org == "AI4DTE"
-    assert repo.gh_reponame == "examples-xgboost-simple"
+    assert repo.gh_org == "octocat"
+    assert repo.gh_reponame == "Spoon-Knife"
     assert repo.git_host == "github.com"
-    assert repo.location == TESTDIR / "github.com/AI4DTE/examples-xgboost-simple"
+    assert repo.location == TESTDIR / "github.com/octocat/Spoon-Knife"
 
 
 def test_determines_parent_dir_from_location():
     repo = GitHubRepo(
-        location=str(TESTDIR / "github.com/AI4DTE/examples-xgboost-simple"),
-        repourl="https://github.com/AI4DTE/examples-xgboost-simple.git",
+        location=str(TESTDIR / "github.com/octocat/Spoon-Knife"),
+        repourl="https://github.com/octocat/Spoon-Knife.git",
     )
 
-    assert repo.gh_org == "AI4DTE"
-    assert repo.gh_reponame == "examples-xgboost-simple"
+    assert repo.gh_org == "octocat"
+    assert repo.gh_reponame == "Spoon-Knife"
     assert repo.git_host == "github.com"
     assert repo.parent_dir == TESTDIR
 

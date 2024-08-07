@@ -107,8 +107,8 @@ class GitHubRepo:
               app_id (str): AIPIPE GitHub App ID - provided when we register our app.
                             There is one per app registration (this is not app installation
                             specific).
-              app_private_key (str): A private generated for our app registration in the app
-                                     management page github.com/organizations/AI4DTE/settings/apps
+              app_private_key (str): A private key generated for our app registration in the app
+                                     management page github.com/organizations/org/settings/apps
         """
         if app_id is None:
             # This works only with public repos and limited methods.
@@ -270,8 +270,8 @@ class GitHubRepo:
           2) when passed to the function only_matching result in a True response.
 
           eg, changed_files(None, lambda f: f.endswith(".yaml")) will find all yaml files in the
-              current branch, whereas changed_files("refs/tags/_AI4DTE_SCANNED_main") will find
-              all files changed between tag _AI4DTE_SCANNED_main and the current work dir.
+              current branch, whereas changed_files("refs/tags/_SCANNED_main") will find
+              all files changed between tag _SCANNED_main and the current work dir.
         """
         if since is None:
             deltas = self.repo.revparse_single(until).peel(pygit2.Tree).diff_to_tree().deltas

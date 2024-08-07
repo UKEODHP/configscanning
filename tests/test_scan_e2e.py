@@ -48,15 +48,15 @@ def test_scan_for_yaml(tmpdir):
 
     # Got c00330d7f1c8f8fd460753a2c946a831b8320a8a
     assert (
-        repo.repo.references["refs/tags/_AI4DTE_SCANNED_main"].peel().id
+        repo.repo.references["refs/tags/_SCANNED_main"].peel().id
         == "d0dd1f61b33d64e29d8bc1372a94ef6a2fee76a9"
     )
 
     # Now we test a scan of changes since a particular prior commit.
     repo.checkout_and_reset("refs/heads/main")
-    repo.delete_tag("_AI4DTE_SCANNED_main")
+    repo.delete_tag("_SCANNED_main")
     repo.repo.create_tag(
-        "_AI4DTE_SCANNED_main",
+        "_SCANNED_main",
         repo.repo["a30c19e3f13765a3b48829788bc1cb8b4e95cee4"].id,
         True,
         pygit2.Signature("Name", "email@example.com"),
@@ -75,7 +75,7 @@ def test_scan_for_yaml(tmpdir):
     }
 
     assert (
-        repo.repo.references["refs/tags/_AI4DTE_SCANNED_main"].peel().id
+        repo.repo.references["refs/tags/_SCANNED_main"].peel().id
         == "d0dd1f61b33d64e29d8bc1372a94ef6a2fee76a9"
     )
 

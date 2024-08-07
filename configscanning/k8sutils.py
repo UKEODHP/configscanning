@@ -15,28 +15,14 @@ def init_k8s():
         kubernetes.config.load_kube_config()
 
 
-def get_ai4dte_config():
-    """Returns the AI4DTE config configmap"""
+def get_config():
+    """Returns the config configmap"""
     with kubernetes.client.ApiClient() as k8s_client:
-        ai4dte_config: V1ConfigMap = CoreV1Api(k8s_client).read_namespaced_config_map(
-            "ai4dte-config", "ai4dte"
+        config: V1ConfigMap = CoreV1Api(k8s_client).read_namespaced_config_map(
+            "config", "namespace"
         )
 
-        return ai4dte_config
-
-
-# class AIPIPEDClient:
-#     def __init__(self, kind) -> None:
-#         self.kind = kind
-
-#     def __enter__(self):
-
-
-# def with_aipipe_resource_dclient(kind, fn):
-#     with kubernetes.client.ApiClient() as k8s_client:
-#         dclient = kubernetes.dynamic.DynamicClient(k8s_client)
-#         api = dclient.resources.get(api_version="ai-pipeline.org/v1alpha1", kind=kind)
-#         return fn(api)
+        return config
 
 
 @contextmanager
