@@ -143,7 +143,7 @@ def config_scan(
     scan_filter=scannable_file,
     full_scan=False,
 ):
-    """Scans and processes the concfig files in the cloned repo"""
+    """Scans and processes the config files in the cloned repo"""
     with clonedrepo.lock:
         with open(f"{clonedrepo.location}.upstream_push_time", "rt", encoding="ascii") as fobj:
             pushed_time = int(fobj.read())

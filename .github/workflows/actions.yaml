@@ -61,4 +61,3 @@ jobs:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       AWS_ECR: ${{ secrets.AWS_ECR }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
-
